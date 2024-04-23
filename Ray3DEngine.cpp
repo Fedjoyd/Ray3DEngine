@@ -3,20 +3,26 @@
 
 #include <string>
 
-#ifdef _DEBUG
+#ifdef _CONSOLE
 #include <iostream>
-#endif // DEBUG
+#endif // CONSOLE
+
+#include "Define.h"
 
 #include "raylib.h"
 #include "raymath.h"
 #include "raygui.h"
 
-int main()
+#ifdef _CONSOLE
+int main(int argc, char* argv[])
 {
+    std::cout << "Hello World!\n";
+#else
+int WinMain(void* hInstance, void* hPrevInstance, wchar_t* lpCmdLine, int nCmdShow)
+{
+#endif
     SetConfigFlags(FLAG_WINDOW_RESIZABLE);
     InitWindow(500, 500, "Ray3DEngine");
-
-    std::cout << "Hello World!\n";
 
     // Define the camera to look into our 3d world
     Camera3D camera = { 0 };
@@ -37,7 +43,7 @@ int main()
     DisableCursor();
 
     // Main game loop
-    while (ShouldNotQuit)    // Detect window close button or ESC key
+    while (ShouldNotQuit)    // Detect window close button
     {
         // Update
         //----------------------------------------------------------------------------------
@@ -65,7 +71,7 @@ int main()
         if (IsKeyDown(KEY_KP_SUBTRACT))
             cubePosition.y -= GetFrameTime();
 
-        UpdateCamera(&camera, CAMERA_FIRST_PERSON);
+        UpdateCamera(&camera, CAMERA_FREE);
 
         CameraTargetStr = "X = ";
         CameraTargetStr += std::to_string(camera.target.x - camera.position.x);
@@ -79,7 +85,8 @@ int main()
         CameraTargetStr += std::to_string(camera.target.z - camera.position.z);
         CameraTargetStr += "(";
         CameraTargetStr += std::to_string(camera.target.z);
-        CameraTargetStr += ")";
+        CameraTargetStr += "), DistHeadTarget = ";
+        CameraTargetStr += std::to_string(Vector3Length(Vector3Subtract(camera.target, camera.position)));
 
         // Draw
         //----------------------------------------------------------------------------------
@@ -91,6 +98,7 @@ int main()
 
         DrawCube(cubePosition, 2.0f, 2.0f, 2.0f, RED);
         DrawCubeWires(cubePosition, 2.0f, 2.0f, 2.0f, MAROON);
+        DrawSphere(camera.target, 1.f, RED);
 
         DrawGrid(10, 1.0f);
 
