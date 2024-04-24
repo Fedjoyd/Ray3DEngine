@@ -201,32 +201,41 @@
   <ItemGroup>
     <ClCompile Include="External\Includes\tinyxml2.cpp" />
     <ClCompile Include="Sources\Components\Component.cpp" />
+    <ClCompile Include="Sources\Components\ComponentsManager.cpp" />
     <ClCompile Include="Sources\Core\Application.cpp" />
     <ClCompile Include="Sources\Core\CamerasManager.cpp" />
     <ClCompile Include="Sources\Core\GameObject.cpp" />
+    <ClCompile Include="Sources\Core\GameObjectManager.cpp" />
     <ClCompile Include="Sources\Core\InputsManager.cpp" />
-    <ClCompile Include="Sources\Core\LocationsManager.cpp" />
+    <ClCompile Include="Sources\Core\LocalizationsManager.cpp" />
     <ClCompile Include="Sources\Core\SettingsManager.cpp" />
+    <ClCompile Include="Sources\Debug\Log.cpp" />
     <ClCompile Include="Sources\Main.cpp" />
     <ClCompile Include="Sources\Physics\PhysicsManager.cpp" />
     <ClCompile Include="Sources\Ressources\Ressource.cpp" />
     <ClCompile Include="Sources\Ressources\RessourcesManager.cpp" />
+    <ClCompile Include="Sources\Ressources\Scene.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="External\Includes\raygui.h" />
     <ClInclude Include="External\Includes\tinyjson.hpp" />
     <ClInclude Include="External\Includes\tinyxml2.h" />
     <ClInclude Include="Includes\Components\Component.h" />
+    <ClInclude Include="Includes\Components\ComponentsManager.h" />
     <ClInclude Include="Includes\Core\Application.h" />
     <ClInclude Include="Includes\Core\CamerasManager.h" />
     <ClInclude Include="Includes\Core\GameObject.h" />
+    <ClInclude Include="Includes\Core\GameObjectManager.h" />
     <ClInclude Include="Includes\Core\InputsManager.h" />
-    <ClInclude Include="Includes\Core\LocationsManager.h" />
+    <ClInclude Include="Includes\Core\LocalizationsManager.h" />
     <ClInclude Include="Includes\Core\SettingsManager.h" />
+    <ClInclude Include="Includes\Debug\Assert.h" />
+    <ClInclude Include="Includes\Debug\Log.h" />
     <ClInclude Include="Includes\Define.h" />
     <ClInclude Include="Includes\Physics\PhysicsManager.h" />
     <ClInclude Include="Includes\Ressources\Ressource.h" />
     <ClInclude Include="Includes\Ressources\RessourcesManager.h" />
+    <ClInclude Include="Includes\Ressources\Scene.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

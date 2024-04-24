@@ -3,16 +3,17 @@
 #include <memory>
 #include <string>
 #include <vector>
+#include <functional>
 
 #include "Define.h"
 
-namespace Core
+namespace Components
 {
-	class InputsManager
+	class ComponentsManager
 	{
 	public:
-		InputsManager() {}
-		~InputsManager() {}
+		ComponentsManager() {}
+		~ComponentsManager() {}
 
 	private:
 	};

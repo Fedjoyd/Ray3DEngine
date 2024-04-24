@@ -8,11 +8,11 @@
 
 namespace Core
 {
-	class InputsManager
+	class LocalizationsManager
 	{
 	public:
-		InputsManager() {}
-		~InputsManager() {}
+		LocalizationsManager() {}
+		~LocalizationsManager() {}
 
 	private:
 	};

@@ -43,6 +43,12 @@
     <Filter Include="Fichiers sources\Physics">
       <UniqueIdentifier>{c39fe396-22b1-4090-a39b-8aeae6505cd4}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Fichiers d%27en-tête\Debug">
+      <UniqueIdentifier>{1a2ae6cd-5f35-4373-8c07-4fc317641f9e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Fichiers sources\Debug">
+      <UniqueIdentifier>{f1ad9d08-696e-4aec-9db8-1c34c1be6397}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="External\Includes\tinyxml2.cpp">
@@ -66,7 +72,7 @@
     <ClCompile Include="Sources\Core\InputsManager.cpp">
       <Filter>Fichiers sources\Core</Filter>
     </ClCompile>
-    <ClCompile Include="Sources\Core\LocationsManager.cpp">
+    <ClCompile Include="Sources\Core\LocalizationsManager.cpp">
       <Filter>Fichiers sources\Core</Filter>
     </ClCompile>
     <ClCompile Include="Sources\Core\SettingsManager.cpp">
@@ -80,6 +86,18 @@
     </ClCompile>
     <ClCompile Include="Sources\Ressources\RessourcesManager.cpp">
       <Filter>Fichiers sources\Ressources</Filter>
+    </ClCompile>
+    <ClCompile Include="Sources\Components\ComponentsManager.cpp">
+      <Filter>Fichiers sources\Components</Filter>
+    </ClCompile>
+    <ClCompile Include="Sources\Debug\Log.cpp">
+      <Filter>Fichiers sources\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="Sources\Ressources\Scene.cpp">
+      <Filter>Fichiers sources\Ressources</Filter>
+    </ClCompile>
+    <ClCompile Include="Sources\Core\GameObjectManager.cpp">
+      <Filter>Fichiers sources\Core</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -110,7 +128,7 @@
     <ClInclude Include="Includes\Core\InputsManager.h">
       <Filter>Fichiers d%27en-tête\Core</Filter>
     </ClInclude>
-    <ClInclude Include="Includes\Core\LocationsManager.h">
+    <ClInclude Include="Includes\Core\LocalizationsManager.h">
       <Filter>Fichiers d%27en-tête\Core</Filter>
     </ClInclude>
     <ClInclude Include="Includes\Core\SettingsManager.h">
@@ -124,6 +142,21 @@
     </ClInclude>
     <ClInclude Include="Includes\Physics\PhysicsManager.h">
       <Filter>Fichiers d%27en-tête\Physics</Filter>
+    </ClInclude>
+    <ClInclude Include="Includes\Components\ComponentsManager.h">
+      <Filter>Fichiers d%27en-tête\Components</Filter>
+    </ClInclude>
+    <ClInclude Include="Includes\Debug\Log.h">
+      <Filter>Fichiers d%27en-tête\Debug</Filter>
+    </ClInclude>
+    <ClInclude Include="Includes\Debug\Assert.h">
+      <Filter>Fichiers d%27en-tête\Debug</Filter>
+    </ClInclude>
+    <ClInclude Include="Includes\Ressources\Scene.h">
+      <Filter>Fichiers d%27en-tête\Ressources</Filter>
+    </ClInclude>
+    <ClInclude Include="Includes\Core\GameObjectManager.h">
+      <Filter>Fichiers d%27en-tête\Core</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

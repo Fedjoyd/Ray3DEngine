@@ -13,16 +13,41 @@
 #include "raymath.h"
 #include "raygui.h"
 
+#include "Core/Application.h"
+
+#include "Debug/Log.h"
+#define R3DE_CURRENT_FILE "Main.cpp"
+
 #ifdef _CONSOLE
+
+class CmdLogger : public Debug::ILogger
+{
+public:
+    CmdLogger() {}
+    ~CmdLogger() {}
+
+    void Print(const std::string& p_str) override { std::cout << p_str; }
+    void Clear() override {}
+};
+
 int main(int argc, char* argv[])
 {
     std::cout << "Hello World!\n";
+
+    CmdLogger CurrentLogger = CmdLogger();
+
+    //std::cout << "old : 897437200, new : " << typeid(Components::Component).hash_code() << std::endl;
 #else
 int WinMain(void* hInstance, void* hPrevInstance, wchar_t* lpCmdLine, int nCmdShow)
 {
 #endif
+    Core::Application::Initialize();
+#ifdef _CONSOLE
+    Core::Application::SetLogger(&CurrentLogger);
+#endif
+
     SetConfigFlags(FLAG_WINDOW_RESIZABLE);
-    InitWindow(500, 500, "Ray3DEngine");
+    InitWindow(DEFAULT_WINDOW_WIDTH, DEFAULT_WINDOW_HEIGHT, "Ray3DEngine");
 
     // Define the camera to look into our 3d world
     Camera3D camera = { 0 };
@@ -38,20 +63,23 @@ int WinMain(void* hInstance, void* hPrevInstance, wchar_t* lpCmdLine, int nCmdSh
     SetTargetFPS(60);               // Set our game to run at 60 frames-per-second
     //--------------------------------------------------------------------------------------
 
-    bool ShouldNotQuit = true;
+    R3DE_DEBUG("Test");
+    R3DE_INFO("Test");
+    R3DE_WARNING("Test");
+    R3DE_ERROR("Test");
+    R3DE_FATAL("Test");
 
     DisableCursor();
 
     // Main game loop
-    while (ShouldNotQuit)    // Detect window close button
+    while (!Core::Application::ShouldExit())    // Detect window close button
     {
         // Update
         //----------------------------------------------------------------------------------
         // TODO: Update your variables here
         //----------------------------------------------------------------------------------
 
-        if (WindowShouldClose() && !IsKeyDown(KEY_ESCAPE))
-            ShouldNotQuit = false;
+        Core::Application::Update();
 
         if (IsKeyPressed(KEY_ESCAPE))
             EnableCursor();
@@ -109,6 +137,10 @@ int WinMain(void* hInstance, void* hPrevInstance, wchar_t* lpCmdLine, int nCmdSh
         DrawFPS(10, 10);
 
         EndDrawing();
+        //----------------------------------------------------------------------------------
+
+        //Core::Application::Draw();
+
         //----------------------------------------------------------------------------------
     }
 
