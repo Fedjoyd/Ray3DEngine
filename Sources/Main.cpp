@@ -63,7 +63,7 @@ int WinMain(void* hInstance, void* hPrevInstance, wchar_t* lpCmdLine, int nCmdSh
     SetTargetFPS(60);               // Set our game to run at 60 frames-per-second
     //--------------------------------------------------------------------------------------
 
-    R3DE_DEBUG("Test");
+    R3DE_DEBUG("Test : %d", 6621565);
     R3DE_INFO("Test");
     R3DE_WARNING("Test");
     R3DE_ERROR("Test");
