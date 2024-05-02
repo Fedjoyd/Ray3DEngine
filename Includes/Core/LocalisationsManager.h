@@ -8,11 +8,11 @@
 
 namespace Core
 {
-	class LocalizationsManager
+	class LocalisationsManager
 	{
 	public:
-		LocalizationsManager() {}
-		~LocalizationsManager() {}
+		LocalisationsManager() {}
+		~LocalisationsManager() {}
 
 	private:
 	};

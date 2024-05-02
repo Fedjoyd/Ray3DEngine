@@ -63,13 +63,13 @@ int WinMain(void* hInstance, void* hPrevInstance, wchar_t* lpCmdLine, int nCmdSh
     SetTargetFPS(60);               // Set our game to run at 60 frames-per-second
     //--------------------------------------------------------------------------------------
 
-    R3DE_DEBUG("Test : %d", 6621565);
+    R3DE_DEBUG("Test -> %d", 6621565);
     R3DE_INFO("Test");
     R3DE_WARNING("Test");
     R3DE_ERROR("Test");
     R3DE_FATAL("Test");
 
-    DisableCursor();
+    //DisableCursor();
 
     // Main game loop
     while (!Core::Application::ShouldExit())    // Detect window close button
@@ -79,9 +79,7 @@ int WinMain(void* hInstance, void* hPrevInstance, wchar_t* lpCmdLine, int nCmdSh
         // TODO: Update your variables here
         //----------------------------------------------------------------------------------
 
-        Core::Application::Update();
-
-        if (IsKeyPressed(KEY_ESCAPE))
+        /*if (IsKeyPressed(KEY_ESCAPE))
             EnableCursor();
         if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT))
             DisableCursor();
@@ -114,37 +112,19 @@ int WinMain(void* hInstance, void* hPrevInstance, wchar_t* lpCmdLine, int nCmdSh
         CameraTargetStr += "(";
         CameraTargetStr += std::to_string(camera.target.z);
         CameraTargetStr += "), DistHeadTarget = ";
-        CameraTargetStr += std::to_string(Vector3Length(Vector3Subtract(camera.target, camera.position)));
+        CameraTargetStr += std::to_string(Vector3Length(Vector3Subtract(camera.target, camera.position)));/**/
+
+        Core::Application::Update();
 
         // Draw
         //----------------------------------------------------------------------------------
-        BeginDrawing();
-
-        ClearBackground(RAYWHITE);
-
-        BeginMode3D(camera);
-
-        DrawCube(cubePosition, 2.0f, 2.0f, 2.0f, RED);
-        DrawCubeWires(cubePosition, 2.0f, 2.0f, 2.0f, MAROON);
-        DrawSphere(camera.target, 1.f, RED);
-
-        DrawGrid(10, 1.0f);
-
-        EndMode3D();
-
-        DrawText(CameraTargetStr.c_str(), 10, 40, 20, DARKGRAY);
-
-        DrawFPS(10, 10);
-
-        EndDrawing();
-        //----------------------------------------------------------------------------------
-
-        //Core::Application::Draw();
+        
+        Core::Application::Draw();
 
         //----------------------------------------------------------------------------------
     }
 
-    EnableCursor();
+    //EnableCursor();
 
     CloseWindow();
 

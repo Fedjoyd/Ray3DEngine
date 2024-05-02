@@ -49,6 +49,12 @@
     <Filter Include="Fichiers sources\Debug">
       <UniqueIdentifier>{f1ad9d08-696e-4aec-9db8-1c34c1be6397}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Fichiers d%27en-tête\Components\Component">
+      <UniqueIdentifier>{d36136e5-5fa0-4e9c-98b2-f964f4f5f0ad}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Fichiers sources\Components\Component">
+      <UniqueIdentifier>{162eba96-afca-48c5-ae1d-23cad03f751f}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="External\Includes\tinyxml2.cpp">
@@ -57,7 +63,7 @@
     <ClCompile Include="Sources\Main.cpp">
       <Filter>Fichiers sources</Filter>
     </ClCompile>
-    <ClCompile Include="Sources\Components\Component.cpp">
+    <ClCompile Include="Sources\Components\IComponent.cpp">
       <Filter>Fichiers sources\Components</Filter>
     </ClCompile>
     <ClCompile Include="Sources\Core\Application.cpp">
@@ -72,7 +78,7 @@
     <ClCompile Include="Sources\Core\InputsManager.cpp">
       <Filter>Fichiers sources\Core</Filter>
     </ClCompile>
-    <ClCompile Include="Sources\Core\LocalizationsManager.cpp">
+    <ClCompile Include="Sources\Core\LocalisationsManager.cpp">
       <Filter>Fichiers sources\Core</Filter>
     </ClCompile>
     <ClCompile Include="Sources\Core\SettingsManager.cpp">
@@ -81,7 +87,7 @@
     <ClCompile Include="Sources\Physics\PhysicsManager.cpp">
       <Filter>Fichiers sources\Physics</Filter>
     </ClCompile>
-    <ClCompile Include="Sources\Ressources\Ressource.cpp">
+    <ClCompile Include="Sources\Ressources\IRessource.cpp">
       <Filter>Fichiers sources\Ressources</Filter>
     </ClCompile>
     <ClCompile Include="Sources\Ressources\RessourcesManager.cpp">
@@ -99,6 +105,12 @@
     <ClCompile Include="Sources\Core\GameObjectManager.cpp">
       <Filter>Fichiers sources\Core</Filter>
     </ClCompile>
+    <ClCompile Include="Sources\Components\Component\Camera.cpp">
+      <Filter>Fichiers sources\Components\Component</Filter>
+    </ClCompile>
+    <ClCompile Include="Sources\Core\Time.cpp">
+      <Filter>Fichiers sources\Core</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="External\Includes\raygui.h">
@@ -113,7 +125,7 @@
     <ClInclude Include="Includes\Define.h">
       <Filter>Fichiers d%27en-tête</Filter>
     </ClInclude>
-    <ClInclude Include="Includes\Components\Component.h">
+    <ClInclude Include="Includes\Components\IComponent.h">
       <Filter>Fichiers d%27en-tête\Components</Filter>
     </ClInclude>
     <ClInclude Include="Includes\Core\Application.h">
@@ -128,13 +140,13 @@
     <ClInclude Include="Includes\Core\InputsManager.h">
       <Filter>Fichiers d%27en-tête\Core</Filter>
     </ClInclude>
-    <ClInclude Include="Includes\Core\LocalizationsManager.h">
+    <ClInclude Include="Includes\Core\LocalisationsManager.h">
       <Filter>Fichiers d%27en-tête\Core</Filter>
     </ClInclude>
     <ClInclude Include="Includes\Core\SettingsManager.h">
       <Filter>Fichiers d%27en-tête\Core</Filter>
     </ClInclude>
-    <ClInclude Include="Includes\Ressources\Ressource.h">
+    <ClInclude Include="Includes\Ressources\IRessource.h">
       <Filter>Fichiers d%27en-tête\Ressources</Filter>
     </ClInclude>
     <ClInclude Include="Includes\Ressources\RessourcesManager.h">
@@ -156,6 +168,12 @@
       <Filter>Fichiers d%27en-tête\Ressources</Filter>
     </ClInclude>
     <ClInclude Include="Includes\Core\GameObjectManager.h">
+      <Filter>Fichiers d%27en-tête\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Includes\Components\Component\Camera.h">
+      <Filter>Fichiers d%27en-tête\Components\Component</Filter>
+    </ClInclude>
+    <ClInclude Include="Includes\Core\Time.h">
       <Filter>Fichiers d%27en-tête\Core</Filter>
     </ClInclude>
   </ItemGroup>

@@ -7,10 +7,10 @@
 #error Platform not supported
 #endif
 
-#ifndef MYTH_ASSERT
+#ifndef R3DE_ASSERT
 #if defined _MSC_VER && !defined __clang__
-#define MYTH_ASSERT(x) __assume(x)
+#define R3DE_ASSERT(x) __assume(x)
 #else
-#define MYTH_ASSERT(x) { false ? (void)(x) : (void)0; }
+#define R3DE_ASSERT(x) { false ? (void)(x) : (void)0; }
 #endif
 #endif

@@ -3,12 +3,13 @@
 #include <memory>
 #include <string>
 #include <vector>
+#include <map>
 
 #include "Define.h"
 
 #include "tinyxml2.h"
 
-#include "Components/Component.h"
+#include "Components/IComponent.h"
 
 namespace Core
 {
@@ -54,10 +55,11 @@ namespace Core
 		void FixedUpdate();
 #ifdef _EDITOR
 		void EditorUpdate();
+		void EditorFixedUpdate();
 		void ShowEditorControl();
 #endif // _EDITOR
 		void Draw() const;
-		void DrawUI() const;
+		void RegisterUiComponent(std::map<float, std::pair<const GameObject*, Components::IUIRenderComponent*>>& p_uiComponent) const;
 
 	private:
 		std::string m_name;
@@ -76,7 +78,7 @@ namespace Core
 
 		for (unsigned int i = 0; i < m_components.size(); i++)
 		{
-			if (m_components[i]->GetComponentType() == typeid(T))
+			if (m_components[i]->GetType() == typeid(T))
 			{
 				toReturnPtr = dynamic_cast<T*>(m_components[i].get());
 
@@ -112,7 +114,7 @@ namespace Core
 
 		for (unsigned int i = 0; i < m_components.size(); i++)
 		{
-			if (m_components[i]->GetComponentType() == typeid(T))
+			if (m_components[i]->GetType() == typeid(T))
 				toReturnlist.push_back(dynamic_cast<T*>(m_components[i].get()));
 		}
 
@@ -129,7 +131,7 @@ namespace Core
 
 		for (unsigned int i = 0; i < m_components.size(); i++)
 		{
-			if (m_components[i]->GetComponentType() == typeid(T))
+			if (m_components[i]->GetType() == typeid(T))
 			{
 				toReturnPtr = dynamic_cast<T*>(m_components[i].get());
 
@@ -165,7 +167,7 @@ namespace Core
 
 		for (unsigned int i = 0; i < m_components.size(); i++)
 		{
-			if (m_components[i]->GetComponentType() == typeid(T))
+			if (m_components[i]->GetType() == typeid(T))
 				toReturnlist.push_back(dynamic_cast<const T*>(m_components[i].get()));
 		}
 
@@ -174,3 +176,4 @@ namespace Core
 }
 
 typedef std::unique_ptr<Core::GameObject> GameObjectPtr;
+//#define newGameObject(GOName) std::make_unique<Core::GameObject>(Core::GameObject(GOName))
