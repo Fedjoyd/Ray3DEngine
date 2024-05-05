@@ -57,9 +57,6 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="External\Includes\tinyxml2.cpp">
-      <Filter>Fichiers sources\External</Filter>
-    </ClCompile>
     <ClCompile Include="Sources\Main.cpp">
       <Filter>Fichiers sources</Filter>
     </ClCompile>
@@ -110,6 +107,27 @@
     </ClCompile>
     <ClCompile Include="Sources\Core\Time.cpp">
       <Filter>Fichiers sources\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="External\Sources\imgui.cpp">
+      <Filter>Fichiers sources\External</Filter>
+    </ClCompile>
+    <ClCompile Include="External\Sources\imgui_demo.cpp">
+      <Filter>Fichiers sources\External</Filter>
+    </ClCompile>
+    <ClCompile Include="External\Sources\imgui_draw.cpp">
+      <Filter>Fichiers sources\External</Filter>
+    </ClCompile>
+    <ClCompile Include="External\Sources\imgui_tables.cpp">
+      <Filter>Fichiers sources\External</Filter>
+    </ClCompile>
+    <ClCompile Include="External\Sources\imgui_widgets.cpp">
+      <Filter>Fichiers sources\External</Filter>
+    </ClCompile>
+    <ClCompile Include="External\Sources\rlImGui.cpp">
+      <Filter>Fichiers sources\External</Filter>
+    </ClCompile>
+    <ClCompile Include="External\Sources\tinyxml2.cpp">
+      <Filter>Fichiers sources\External</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -175,6 +193,33 @@
     </ClInclude>
     <ClInclude Include="Includes\Core\Time.h">
       <Filter>Fichiers d%27en-tête\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="External\Includes\imconfig.h">
+      <Filter>Fichiers d%27en-tête\External</Filter>
+    </ClInclude>
+    <ClInclude Include="External\Includes\imgui.h">
+      <Filter>Fichiers d%27en-tête\External</Filter>
+    </ClInclude>
+    <ClInclude Include="External\Includes\imgui_impl_raylib.h">
+      <Filter>Fichiers d%27en-tête\External</Filter>
+    </ClInclude>
+    <ClInclude Include="External\Includes\imgui_internal.h">
+      <Filter>Fichiers d%27en-tête\External</Filter>
+    </ClInclude>
+    <ClInclude Include="External\Includes\imstb_rectpack.h">
+      <Filter>Fichiers d%27en-tête\External</Filter>
+    </ClInclude>
+    <ClInclude Include="External\Includes\imstb_textedit.h">
+      <Filter>Fichiers d%27en-tête\External</Filter>
+    </ClInclude>
+    <ClInclude Include="External\Includes\imstb_truetype.h">
+      <Filter>Fichiers d%27en-tête\External</Filter>
+    </ClInclude>
+    <ClInclude Include="External\Includes\rlImGui.h">
+      <Filter>Fichiers d%27en-tête\External</Filter>
+    </ClInclude>
+    <ClInclude Include="External\Includes\rlImGuiColors.h">
+      <Filter>Fichiers d%27en-tête\External</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

@@ -14,6 +14,10 @@ namespace Core
 		InputsManager() {}
 		~InputsManager() {}
 
+#ifdef _EDITOR
+		void ShowEditorControl();
+#endif // _EDITOR
+
 	private:
 	};
 }

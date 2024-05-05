@@ -8,7 +8,11 @@
 
 #include "raylib.h"
 #include "raymath.h"
-#include "raygui.h"
+
+#ifdef _EDITOR
+#include "imgui.h"
+#include "rlImGui.h"
+#endif // _EDITOR
 
 #include "Debug/Log.h"
 #define R3DE_CURRENT_FILE "Application.h"
@@ -41,10 +45,20 @@ namespace Core
 
 		static void Update();
 		static void Draw();
+#ifdef _EDITOR
+		static void EditorWindows();
+#endif // _EDITOR
 
 		static void SetLogger(Debug::ILogger* p_logger = nullptr) { m_singleton.m_log.SetLogger(p_logger); }
 
 		// ---- Application module getter ----
+
+		static Color& BackgroundColor() { return m_singleton.m_ColorBackground; }
+
+#ifdef _EDITOR
+		static bool FullscreenGame() { return (m_singleton.m_ShowEditorControl ? m_singleton.m_fullscreenGame : true); }
+		static RenderTexture2D& GameRenderTexture() { return m_singleton.m_GameTexture; }
+#endif // _EDITOR
 
 		GameObjectManager& GetGameObjectManager() { return m_gameObjectManager; }
 		const GameObjectManager& GetGameObjectManager() const { return m_gameObjectManager; }
@@ -64,14 +78,13 @@ namespace Core
 
 		Debug::Log& GetLog() { return m_log; }
 		const Debug::Log& GetLog() const { return m_log; }
-
 		Time& GetTime() { return m_time; }
 		const Time& GetTime() const { return m_time; }
 
 	private:
 		static Application m_singleton;
 
-		Application() : m_shouldExit(false), m_name("none"), m_queryLoadScene(false), m_nextSceneName("") {}
+		Application() : m_shouldExit(false), m_ColorBackground(RAYWHITE), m_name("none"), m_queryLoadScene(false), m_nextSceneName("") {}
 
 		std::string m_name;
 		bool        m_shouldExit;
@@ -81,6 +94,8 @@ namespace Core
 		std::string m_nextSceneName;
 
 		// ---- Data Storage ----
+
+		Color m_ColorBackground;
 
 		GameObjectManager m_gameObjectManager;
 		CamerasManager m_camerasManager;
@@ -92,9 +107,18 @@ namespace Core
 		Ressources::RessourcesManager m_ressourcesManager;
 
 		Debug::Log m_log;
-
 		Time m_time;
 
+		// ---- Editor Data ----
+#ifdef _EDITOR
+
+		bool m_ShowEditorControl = true;
+		bool m_fullscreenGame = false;
+		RenderTexture2D m_GameTexture = { 0 };
+
+		bool m_OpenStyle = false;
+
+#endif // _EDITOR
 		// ---- Private Methode ----
 	};
 }

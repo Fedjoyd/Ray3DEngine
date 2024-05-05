@@ -8,7 +8,11 @@
 
 #include "raylib.h"
 #include "raymath.h"
-#include "raygui.h"
+
+#ifdef _EDITOR
+#include "imgui.h"
+#include "rlImGui.h"
+#endif // _EDITOR
 
 #include "Debug/Log.h"
 #define R3DE_CURRENT_FILE "CamerasManager.h"
@@ -29,15 +33,19 @@ namespace Core
 #ifdef _EDITOR
 		void SetFreeFly(bool p_freeFly = true) { m_freeFly = p_freeFly; }
 		bool IsFreeFly() const { return m_freeFly; }
+
+		void ShowEditorControl();
 #endif // _EDITOR
 
 		void Update();
 
 		const Camera3D& GetCameraData() const;
+		bool IsCursorLock() const { return m_CursorLock; }
 
 	private:
 #ifdef _EDITOR
 		bool m_freeFly;
+		bool m_CursorLock;
 		Camera3D m_freeFlyData;
 #endif // _EDITOR
 

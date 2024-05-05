@@ -11,7 +11,11 @@
 
 #include "raylib.h"
 #include "raymath.h"
-#include "raygui.h"
+
+#ifdef _EDITOR
+#include "imgui.h"
+#include "rlImGui.h"
+#endif // _EDITOR
 
 #include "Core/Application.h"
 
@@ -41,13 +45,17 @@ int main(int argc, char* argv[])
 int WinMain(void* hInstance, void* hPrevInstance, wchar_t* lpCmdLine, int nCmdShow)
 {
 #endif
+    SetConfigFlags(FLAG_WINDOW_RESIZABLE);
+    InitWindow(DEFAULT_WINDOW_WIDTH, DEFAULT_WINDOW_HEIGHT, "Ray3DEngine");
+    SetTargetFPS(60);               // Set our game to run at 60 frames-per-second
+#ifdef _EDITOR
+    rlImGuiSetup(true);
+#endif // _EDITOR
+
     Core::Application::Initialize();
 #ifdef _CONSOLE
     Core::Application::SetLogger(&CurrentLogger);
 #endif
-
-    SetConfigFlags(FLAG_WINDOW_RESIZABLE);
-    InitWindow(DEFAULT_WINDOW_WIDTH, DEFAULT_WINDOW_HEIGHT, "Ray3DEngine");
 
     // Define the camera to look into our 3d world
     Camera3D camera = { 0 };
@@ -60,7 +68,6 @@ int WinMain(void* hInstance, void* hPrevInstance, wchar_t* lpCmdLine, int nCmdSh
     Vector3 cubePosition = { 0.0f, 0.0f, 0.0f };
     std::string CameraTargetStr = "";
 
-    SetTargetFPS(60);               // Set our game to run at 60 frames-per-second
     //--------------------------------------------------------------------------------------
 
     R3DE_DEBUG("Test -> %d", 6621565);
@@ -68,8 +75,6 @@ int WinMain(void* hInstance, void* hPrevInstance, wchar_t* lpCmdLine, int nCmdSh
     R3DE_WARNING("Test");
     R3DE_ERROR("Test");
     R3DE_FATAL("Test");
-
-    //DisableCursor();
 
     // Main game loop
     while (!Core::Application::ShouldExit())    // Detect window close button
@@ -118,14 +123,47 @@ int WinMain(void* hInstance, void* hPrevInstance, wchar_t* lpCmdLine, int nCmdSh
 
         // Draw
         //----------------------------------------------------------------------------------
-        
-        Core::Application::Draw();
+#ifdef _EDITOR
+        if (Core::Application::FullscreenGame())
+        {
+            BeginDrawing();
+            ClearBackground(Core::Application::BackgroundColor());
 
+            Core::Application::Draw();
+
+            Core::Application::EditorWindows();
+        }
+        else
+        {
+            BeginTextureMode(Core::Application::GameRenderTexture());
+            ClearBackground(Core::Application::BackgroundColor());
+
+            Core::Application::Draw();
+
+            EndTextureMode();
+
+            // ---- Start editor ----
+
+            BeginDrawing();
+            ClearBackground(BLACK);
+
+            Core::Application::EditorWindows();
+        }
+#else
+        BeginDrawing();
+        ClearBackground(Core::Application::GetBackgroundColor());
+
+        Core::Application::Draw();
+#endif // _EDITOR
+
+        EndDrawing();
         //----------------------------------------------------------------------------------
     }
 
-    //EnableCursor();
 
+#ifdef _EDITOR
+    rlImGuiShutdown();
+#endif // _EDITOR
     CloseWindow();
 
     return 0;

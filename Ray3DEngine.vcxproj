@@ -199,7 +199,13 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="External\Includes\tinyxml2.cpp" />
+    <ClCompile Include="External\Sources\imgui.cpp" />
+    <ClCompile Include="External\Sources\imgui_demo.cpp" />
+    <ClCompile Include="External\Sources\imgui_draw.cpp" />
+    <ClCompile Include="External\Sources\imgui_tables.cpp" />
+    <ClCompile Include="External\Sources\imgui_widgets.cpp" />
+    <ClCompile Include="External\Sources\rlImGui.cpp" />
+    <ClCompile Include="External\Sources\tinyxml2.cpp" />
     <ClCompile Include="Sources\Components\Component\Camera.cpp" />
     <ClCompile Include="Sources\Components\IComponent.cpp" />
     <ClCompile Include="Sources\Components\ComponentsManager.cpp" />
@@ -219,7 +225,16 @@
     <ClCompile Include="Sources\Ressources\Scene.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="External\Includes\imconfig.h" />
+    <ClInclude Include="External\Includes\imgui.h" />
+    <ClInclude Include="External\Includes\imgui_impl_raylib.h" />
+    <ClInclude Include="External\Includes\imgui_internal.h" />
+    <ClInclude Include="External\Includes\imstb_rectpack.h" />
+    <ClInclude Include="External\Includes\imstb_textedit.h" />
+    <ClInclude Include="External\Includes\imstb_truetype.h" />
     <ClInclude Include="External\Includes\raygui.h" />
+    <ClInclude Include="External\Includes\rlImGui.h" />
+    <ClInclude Include="External\Includes\rlImGuiColors.h" />
     <ClInclude Include="External\Includes\tinyjson.hpp" />
     <ClInclude Include="External\Includes\tinyxml2.h" />
     <ClInclude Include="Includes\Components\Component\Camera.h" />

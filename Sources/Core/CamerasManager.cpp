@@ -7,6 +7,7 @@ const Camera3D Core::CamerasManager::Default3DCam = Camera3D{ Vector3{ 0.0f, 10.
 Core::CamerasManager::CamerasManager() :
 #ifdef _EDITOR
 	m_freeFly(false),
+	m_CursorLock(false),
 	m_freeFlyData({ 0 }),
 #endif // _EDITOR
 	m_CurrentCamera(nullptr),
@@ -25,13 +26,28 @@ Core::CamerasManager::CamerasManager() :
 void Core::CamerasManager::Update()
 {
 #ifdef _EDITOR
-	m_freeFlyData.fovy = m_defaultFovY;
+/*	m_freeFlyData.fovy = m_defaultFovY;
 	m_freeFlyData.projection = m_defaultProjection;
 
-	if (m_freeFly || m_CurrentCamera == nullptr)
+	ImGuiIO& currentIO = ImGui::GetIO();
+
+	if ((m_freeFly || m_CurrentCamera == nullptr) && !m_CursorLock && IsKeyPressed(KEY_TAB) && !currentIO.WantCaptureMouse)
 	{
-		UpdateCamera(&m_freeFlyData, CAMERA_FREE);
+		DisableCursor();
+		m_CursorLock = true;
+		m_freeFly = true;
+		currentIO.ConfigFlags = ImGuiConfigFlags_NoMouse;
+		currentIO.AddFocusEvent(false);
 	}
+	else if (m_freeFly && m_CursorLock && IsKeyPressed(KEY_TAB))
+	{
+		EnableCursor();
+		m_CursorLock = false;
+		currentIO.ConfigFlags = ImGuiConfigFlags_None;
+	}
+
+	if (m_freeFly && m_CursorLock)
+		UpdateCamera(&m_freeFlyData, CAMERA_FREE);/**/
 #endif // _EDITOR
 }
 
@@ -47,3 +63,9 @@ const Camera3D& Core::CamerasManager::GetCameraData() const
 
 	return Default3DCam;
 }
+
+#ifdef _EDITOR
+void Core::CamerasManager::ShowEditorControl()
+{
+}
+#endif // _EDITOR
