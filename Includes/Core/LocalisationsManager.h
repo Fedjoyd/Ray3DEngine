@@ -14,6 +14,10 @@ namespace Core
 		LocalisationsManager() {}
 		~LocalisationsManager() {}
 
+#ifdef _EDITOR
+		void ShowEditorControl();
+#endif // _EDITOR
+
 	private:
 	};
 }

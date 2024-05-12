@@ -22,7 +22,9 @@ namespace Core
 		~GameObjectManager() {}
 
 		void LoadScene(ScenePtr m_SceneToLoad);
+#ifdef _EDITOR
 		bool SaveScene(ScenePtr& m_SceneToLoad);
+#endif // _EDITOR
 
 		std::vector<GameObjectPtr>& GetGameObjects() { return m_gameObjectsList; }
 		const std::vector<GameObjectPtr>& GetGameObjects() const { return m_gameObjectsList; }
@@ -36,8 +38,8 @@ namespace Core
 		void EditorUpdate();
 		void EditorFixedUpdate();
 
-		void ShowManagerWindow(bool* p_opened = nullptr);
-		void ShowEditorWindow(bool* p_opened = nullptr);
+		void ShowEditorControl(ItemSelectionData& p_selectedItem);
+		void ShowGameObjectInspector(size_t p_selectedGameObject);
 #endif // _EDITOR
 		void Draw() const;
 		void DrawUI() const;

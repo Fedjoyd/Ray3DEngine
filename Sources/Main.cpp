@@ -22,6 +22,37 @@
 #include "Debug/Log.h"
 #define R3DE_CURRENT_FILE "Main.cpp"
 
+class TestComponent : public Components::IComponent
+{
+public:
+    TestComponent() {}
+    ~TestComponent() {}
+
+    REGISTER_COMPONENT(TestComponent, Components::COMPONENT_TYPE_NOTHING)
+
+private:
+};
+class TestRessource : public Ressources::IRessource
+{
+public:
+    TestRessource(const int64_t p_UUID) : IRessource(p_UUID) {}
+    ~TestRessource() {}
+
+    REGISTER_RESSOURCE(TestRessource)
+
+private:
+};
+class TestRessource2 : public Ressources::IRessource
+{
+public:
+    TestRessource2(const int64_t p_UUID) : IRessource(p_UUID) {}
+    ~TestRessource2() {}
+
+    REGISTER_RESSOURCE(TestRessource2)
+
+private:
+};
+
 #ifdef _CONSOLE
 
 class CmdLogger : public Debug::ILogger
@@ -75,6 +106,12 @@ int WinMain(void* hInstance, void* hPrevInstance, wchar_t* lpCmdLine, int nCmdSh
     R3DE_WARNING("Test");
     R3DE_ERROR("Test");
     R3DE_FATAL("Test");
+
+    REGISTER_COMPONENT_CREATOR(TestComponent);
+    REGISTER_COMPONENT_CREATOR(Components::Camera);
+
+    REGISTER_RESSOURCE_CREATOR(TestRessource);
+    REGISTER_RESSOURCE_CREATOR(TestRessource2);
 
     // Main game loop
     while (!Core::Application::ShouldExit())    // Detect window close button
@@ -151,7 +188,7 @@ int WinMain(void* hInstance, void* hPrevInstance, wchar_t* lpCmdLine, int nCmdSh
         }
 #else
         BeginDrawing();
-        ClearBackground(Core::Application::GetBackgroundColor());
+        ClearBackground(Core::Application::BackgroundColor());
 
         Core::Application::Draw();
 #endif // _EDITOR

@@ -84,6 +84,9 @@ void Core::GameObject::FixedUpdate()
 }
 
 #ifdef _EDITOR
+#include "imgui.h"
+#include "imgui_stdlib.h"
+
 void Core::GameObject::EditorUpdate()
 {
 	for (unsigned int i = 0; i < m_components.size(); i++)
@@ -121,7 +124,63 @@ void Core::GameObject::EditorFixedUpdate()
 
 void Core::GameObject::ShowEditorControl()
 {
-	// TODO : gameObject editor
+	ImGui::InputText("##GameObjectName", &m_name);
+	ImGui::SameLine();
+	if (ImGui::Button("Delete##GameObject"))
+		ImGui::OpenPopup("DeleteGameObject?");
+
+	// Always center this window when appearing
+	ImVec2 center = ImGui::GetMainViewport()->GetCenter();
+	ImGui::SetNextWindowPos(center, ImGuiCond_Appearing, ImVec2(0.5f, 0.5f));
+	if (ImGui::BeginPopupModal("DeleteGameObject?", NULL, ImGuiWindowFlags_AlwaysAutoResize))
+	{
+		ImGui::Text("%s will be deleted.\nThis operation cannot be undone !\n\n", m_name.c_str());
+		ImGui::Separator();
+
+		if (ImGui::Button("OK", ImVec2(120, 0)))
+		{
+			ImGui::CloseCurrentPopup();
+			SetDeleteFlag(true);
+		}
+
+		ImGui::SetItemDefaultFocus();
+		ImGui::SameLine();
+		if (ImGui::Button("Cancel", ImVec2(120, 0))) { ImGui::CloseCurrentPopup(); }
+		ImGui::EndPopup();
+	}
+
+	ImGui::Separator();
+
+	static bool IsChecked = false;
+	for (unsigned int i = 0; i < m_components.size(); i++)
+	{
+		IsChecked = m_components[i]->Enabled();
+		if (ImGui::Checkbox(("##EnabledComponent_" + std::to_string(i)).c_str(), &IsChecked))
+			m_components[i]->SetEnabled(IsChecked);
+		ImGui::SameLine();
+		ImGui::Text("Component : %s", m_components[i]->GetType().name());
+
+		if (ImGui::Button(("Delete##Component_" + std::to_string(i)).c_str()))
+			m_components[i]->SetDeleteFlag(true);
+
+		m_components[i]->ShowEditorControl(i);
+		ImGui::Separator();
+	}
+
+	size_t ComponentHash = 0;
+	if (Components::ComponentsManager::ShowComponentCombotBox(&ComponentHash))
+		m_components.emplace_back(Core::Application::GetInstance().GetComponentsManager().CreateComponent(ComponentHash));
+}
+
+void Core::GameObject::SetupGameObjectID(std::vector<GameObjectPtr>& m_gameObjectsList)
+{
+	unsigned int newID = 1u;
+
+	for (GameObjectPtr& currentGo : m_gameObjectsList)
+	{
+		currentGo->m_ID = newID;
+		newID = newID + 1u;
+	}
 }
 #endif
 

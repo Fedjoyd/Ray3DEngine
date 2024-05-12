@@ -27,6 +27,10 @@ namespace Core
 		inline float TimeScale() const { return m_timeScale; }
 		inline int TargetFrameRate() const { return m_targetFrameRate; }
 
+#ifdef _EDITOR
+		void ShowEditorControl();
+#endif // _EDITOR
+
 		void Update();
 
 	private:

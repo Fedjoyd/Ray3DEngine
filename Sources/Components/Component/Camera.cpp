@@ -2,7 +2,7 @@
 
 #include "Core/Application.h"
 
-Components::Camera::Camera()
+Components::Camera::Camera() : m_cameraData({ 0 }), m_cursorLock(false)
 {
 }
 
@@ -42,6 +42,26 @@ void Components::Camera::EditorUpdate(Core::GameObject* p_gameObject)
 
 void Components::Camera::ShowEditorControl(const unsigned int p_indexComponent)
 {
-	IComponent::ShowEditorControl(p_indexComponent);
+	ImGui::SameLine();
+
+	if (Core::Application::GetInstance().GetCamerasManager().TestCurrentCamera(this))
+	{
+		if (ImGui::Button(("Deselect##camera" + std::to_string(p_indexComponent)).c_str()))
+			Core::Application::GetInstance().GetCamerasManager().SetCurrentCamera();
+	}
+	else
+	{
+		if (ImGui::Button(("Select##camera" + std::to_string(p_indexComponent)).c_str()))
+			Core::Application::GetInstance().GetCamerasManager().SetCurrentCamera(this);
+	}
+
+	ImGui::Spacing();
+
+	//ImGui::InputInt(("Transform##camera" + std::to_string(p_indexComponent)).c_str(), (int*)&IndexTransform);
+
+	static bool isOrthographic = false;
+	isOrthographic = (m_cameraData.projection == CAMERA_ORTHOGRAPHIC);
+	ImGui::Checkbox(("Is orthographic##camera" + std::to_string(p_indexComponent)).c_str(), &isOrthographic);
+	m_cameraData.projection = (isOrthographic ? CAMERA_ORTHOGRAPHIC : CAMERA_PERSPECTIVE);
 }
 #endif // _EDITOR

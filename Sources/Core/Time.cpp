@@ -25,12 +25,21 @@ int Core::Time::Fixing()
     return (Application::GetInstance().GetTime().m_fixCount == 0 ? 1 : Application::GetInstance().GetTime().m_fixCount);
 }
 
-float tempDeltaTime = 0.f;
+
+#ifdef _EDITOR
+void Core::Time::ShowEditorControl()
+{
+}
+#endif // _EDITOR
+
 
 void Core::Time::Update()
 {
     m_fixCount = 0;
+
+    static float tempDeltaTime = 0.f;
     tempDeltaTime = GetFrameTime();
+
     while (tempDeltaTime > m_fixedDeltaTime)
     {
         tempDeltaTime -= m_fixedDeltaTime;

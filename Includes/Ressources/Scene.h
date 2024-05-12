@@ -21,24 +21,27 @@ namespace Ressources
 		// ---- Load/Save - Deserialize/Serialize ----
 
 		virtual bool LoadXmlDocument(tinyxml2::XMLDocument& dst) = 0;
+#ifdef _EDITOR
 		virtual void Save(tinyxml2::XMLDocument& dst) {}
+#endif // _EDITOR
 	};
 
 	class DefaultScene : public Scene
 	{
 	public:
-		DefaultScene() : m_name("default"), m_path(DEFAULT_SCENE_PATH) {}
 		DefaultScene(const std::string& p_name) : m_name(p_name), m_path(DEFAULT_SCENE_PATH) {}
 		DefaultScene(const std::string& p_name, const std::string& p_path) : m_name(p_name), m_path(p_path) {}
 		~DefaultScene() {}
 
-		std::string& GetName() { return m_name; }
 		const std::string& GetName() const override { return m_name; }
+		std::string& GetPath() { return m_path; }
 
 		// ---- Load/Save - Deserialize/Serialize ----
 
 		bool LoadXmlDocument(tinyxml2::XMLDocument& dst) override;
+#ifdef _EDITOR
 		void Save(tinyxml2::XMLDocument& dst) override;
+#endif // _EDITOR
 
 	private:
 		std::string m_name;

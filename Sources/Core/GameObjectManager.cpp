@@ -28,6 +28,7 @@ void Core::GameObjectManager::LoadScene(ScenePtr m_SceneToLoad)
 	}
 }
 
+#ifdef _EDITOR
 bool Core::GameObjectManager::SaveScene(ScenePtr& m_SceneToSave)
 {
 	if (m_SceneToSave == nullptr)
@@ -53,6 +54,7 @@ bool Core::GameObjectManager::SaveScene(ScenePtr& m_SceneToSave)
 	m_SceneToSave->Save(CurrentSceneXMLDocument);
 	return true;
 }
+#endif // _EDITOR
 
 void Core::GameObjectManager::Start()
 {
@@ -72,6 +74,7 @@ void Core::GameObjectManager::Update()
 		{
 			m_gameObjectsList.erase(m_gameObjectsList.begin() + i);
 			i--;
+			continue;
 		}
 
 		m_gameObjectsList[i]->RegisterUiComponent(m_uiRenderComponents);
@@ -85,6 +88,9 @@ void Core::GameObjectManager::FixedUpdate()
 }
 
 #ifdef _EDITOR
+#include "imgui.h"
+#include "imgui_stdlib.h"
+
 void Core::GameObjectManager::EditorUpdate()
 {
 	for (unsigned int i = 0; i < m_gameObjectsList.size(); i++)
@@ -104,14 +110,46 @@ void Core::GameObjectManager::EditorFixedUpdate()
 		CurrentGameObject->EditorFixedUpdate();
 }
 
-void Core::GameObjectManager::ShowManagerWindow(bool* p_opened)
+void Core::GameObjectManager::ShowEditorControl(ItemSelectionData& p_selectedItem)
 {
-	// TODO : Manager window
+	for (unsigned int i = 0; i < m_gameObjectsList.size(); i++)
+	{
+		if (m_gameObjectsList[i]->GetId() == 0u)
+			GameObject::SetupGameObjectID(m_gameObjectsList);
+
+		if (ImGui::Selectable((m_gameObjectsList[i]->GetName() + "##" + std::to_string(m_gameObjectsList[i]->GetId())).c_str()))
+		{
+			p_selectedItem.type = TYPE_ITEM_SELECTED::GAMEOBJECT;
+			p_selectedItem.Data.RessourceUUID = 0L;
+			p_selectedItem.Data.GameObjectIndex = i;
+		}
+
+		if (ImGui::IsItemActive() && !ImGui::IsItemHovered())
+		{
+			size_t i_next = i + (ImGui::GetMouseDragDelta(0).y < 0.f ? -1 : 1);
+			if (i_next >= 0 && i_next < m_gameObjectsList.size())
+			{
+				p_selectedItem.Data.GameObjectIndex = i_next;
+				m_gameObjectsList[i_next].swap(m_gameObjectsList[i]);
+				ImGui::ResetMouseDragDelta();
+			}
+		}
+	}
+
+
+	static std::string newSceneName = "";
+	ImGui::InputText("##GameObjectName", &newSceneName);
+	ImGui::SameLine();
+	if (ImGui::Button("Add GameObject##GameObjectName"))
+		m_gameObjectsList.emplace_back(std::make_unique<GameObject>(newSceneName));
 }
 
-void Core::GameObjectManager::ShowEditorWindow(bool* p_opened)
+void Core::GameObjectManager::ShowGameObjectInspector(size_t p_selectedGameObject)
 {
-	// TODO : Editor window
+	if (p_selectedGameObject < m_gameObjectsList.size())
+		m_gameObjectsList[p_selectedGameObject]->ShowEditorControl();
+	else
+		ImGui::Text("No GameObject or Ressources Selected");
 }
 #endif // _EDITOR
 

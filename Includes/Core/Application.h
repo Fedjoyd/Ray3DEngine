@@ -34,14 +34,22 @@ namespace Core
 	class Application
 	{
 	public:
+#ifdef _EDITOR
+		~Application() { UnloadRenderTexture(m_GameTexture); }
+#else
 		~Application() {}
+#endif // _EDITOR
 
 		static Application& GetInstance() { return m_singleton; }
 
 		static const std::string& GetName() { return m_singleton.m_name; }
-		static void Initialize();
-		static bool ShouldExit() { return ((WindowShouldClose() && !IsKeyDown(KEY_ESCAPE)) || m_singleton.m_shouldExit); }
-		static void Kill() { m_singleton.m_shouldExit = true; }
+		static void  Initialize();
+		static bool  ShouldExit() { return ((WindowShouldClose() && !IsKeyDown(KEY_ESCAPE)) || m_singleton.m_shouldExit); }
+		static void  Kill() { m_singleton.m_shouldExit = true; }
+
+		static void		   QueryLoadScene(std::string p_nextSceneName) { m_singleton.m_queryLoadScene = true; m_singleton.m_nextSceneName = p_nextSceneName; }
+		static std::string GetCurrentSceneName() { return m_singleton.m_CurrentSceneName; }
+		static bool		   IsCurrentScene(const std::string& p_TestScene) { return (p_TestScene == m_singleton.m_CurrentSceneName); }
 
 		static void Update();
 		static void Draw();
@@ -62,6 +70,11 @@ namespace Core
 
 		GameObjectManager& GetGameObjectManager() { return m_gameObjectManager; }
 		const GameObjectManager& GetGameObjectManager() const { return m_gameObjectManager; }
+		Components::ComponentsManager& GetComponentsManager() { return m_componentsManager; }
+		const Components::ComponentsManager& GetComponentsManager() const { return m_componentsManager; }
+		Ressources::RessourcesManager& GetRessourcesManager() { return m_ressourcesManager; }
+		const Ressources::RessourcesManager& GetRessourcesManager() const { return m_ressourcesManager; }
+
 		CamerasManager& GetCamerasManager() { return m_camerasManager; }
 		const CamerasManager& GetCamerasManager() const { return m_camerasManager; }
 		InputsManager& GetInputsManager() { return m_inputsManager; }
@@ -71,11 +84,6 @@ namespace Core
 		SettingsManager& GetSettingsManager() { return m_settingsManager; }
 		const SettingsManager& GetSettingsManager() const { return m_settingsManager; }
 
-		Components::ComponentsManager& GetComponentsManager() { return m_componentsManager; }
-		const Components::ComponentsManager& GetComponentsManager() const { return m_componentsManager; }
-		Ressources::RessourcesManager& GetRessourcesManager() { return m_ressourcesManager; }
-		const Ressources::RessourcesManager& GetRessourcesManager() const { return m_ressourcesManager; }
-
 		Debug::Log& GetLog() { return m_log; }
 		const Debug::Log& GetLog() const { return m_log; }
 		Time& GetTime() { return m_time; }
@@ -84,7 +92,7 @@ namespace Core
 	private:
 		static Application m_singleton;
 
-		Application() : m_shouldExit(false), m_ColorBackground(RAYWHITE), m_name("none"), m_queryLoadScene(false), m_nextSceneName("") {}
+		Application() : m_shouldExit(false), m_ColorBackground(RAYWHITE), m_name("none"), m_queryLoadScene(false), m_nextSceneName(""), m_CurrentSceneName("") {}
 
 		std::string m_name;
 		bool        m_shouldExit;
@@ -92,31 +100,35 @@ namespace Core
 		// change scene
 		bool        m_queryLoadScene;
 		std::string m_nextSceneName;
+		std::string m_CurrentSceneName;
 
 		// ---- Data Storage ----
 
 		Color m_ColorBackground;
 
 		GameObjectManager m_gameObjectManager;
+		Components::ComponentsManager m_componentsManager;
+		Ressources::RessourcesManager m_ressourcesManager;
+
 		CamerasManager m_camerasManager;
 		InputsManager m_inputsManager;
 		LocalisationsManager m_localisationsManager;
 		SettingsManager m_settingsManager;
-
-		Components::ComponentsManager m_componentsManager;
-		Ressources::RessourcesManager m_ressourcesManager;
 
 		Debug::Log m_log;
 		Time m_time;
 
 		// ---- Editor Data ----
 #ifdef _EDITOR
+		ItemSelectionData m_SelectedItem = ItemSelectionData{ TYPE_ITEM_SELECTED::NONE, 0L };
 
 		bool m_ShowEditorControl = true;
 		bool m_fullscreenGame = false;
 		RenderTexture2D m_GameTexture = { 0 };
 
 		bool m_OpenStyle = false;
+		bool m_OpenLocalisationsManager = false;
+		bool m_OpenLog = false;
 
 #endif // _EDITOR
 		// ---- Private Methode ----

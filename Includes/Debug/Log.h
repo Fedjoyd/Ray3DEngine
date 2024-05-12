@@ -61,7 +61,7 @@ namespace Debug
 		// safe for multithreading
 		static void Fatal(const char* p_file, const unsigned p_line, const char* p_fmt, ...);
 
-		void ShowEditorWindow(bool* p_opened = nullptr);
+		void ShowEditorControl();
 #else // !_EDITOR
 		// safe for multithreading
 		static void Debug(const char* p_fmt, ...);

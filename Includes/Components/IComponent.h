@@ -55,7 +55,7 @@ namespace Components
 		virtual void Start(Core::GameObject* p_gameObject) {}
 #ifdef _EDITOR
 		// don't forget preprocessor : #ifdef _EDITOR and #endif
-		virtual void ShowEditorControl(const unsigned int p_indexComponent);
+		virtual void ShowEditorControl(const unsigned int p_indexComponent) {}
 #endif // _EDITOR
 
 	private:

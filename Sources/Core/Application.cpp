@@ -10,7 +10,9 @@ void Core::Application::Initialize()
 {
 	Debug::Log::SetInstance(&(m_singleton.m_log));
 
+#ifdef _EDITOR
     m_singleton.m_GameTexture = LoadRenderTexture(GetScreenWidth(), GetScreenHeight());
+#endif // _EDITOR
 
 	R3DE_INFO("Initialisation Finished !!");
 }
@@ -24,9 +26,11 @@ void Core::Application::Update()
         if (nextScene != nullptr)
         {
             m_singleton.m_gameObjectManager.LoadScene(nextScene);
-            m_singleton.m_ressourcesManager.UnloadUnusedRessource();
+            m_singleton.m_ressourcesManager.UnloadUnusedResource();
 
             R3DE_INFO("Scene %s loaded !", nextScene->GetName().c_str());
+
+            m_singleton.m_CurrentSceneName = nextScene->GetName();
 
             m_singleton.m_gameObjectManager.Start();
         }
@@ -37,6 +41,7 @@ void Core::Application::Update()
         m_singleton.m_queryLoadScene = false;
     }
 
+#ifdef _EDITOR
     if (IsWindowResized())
     {
         UnloadRenderTexture(m_singleton.m_GameTexture);
@@ -45,6 +50,7 @@ void Core::Application::Update()
 
     if (IsKeyPressed(KEY_H))
         m_singleton.m_ShowEditorControl = !(m_singleton.m_ShowEditorControl);
+#endif // _EDITOR
 
     m_singleton.m_time.Update();
     m_singleton.GetCamerasManager().Update();
@@ -104,7 +110,11 @@ void Core::Application::EditorWindows()
         if (ImGui::BeginMenu("Menu"))
         {
             ImGui::MenuItem("Game Fullscreen", NULL, &(m_singleton.m_fullscreenGame));
+            ImGui::Separator();
+            ImGui::MenuItem("Log", NULL, &(m_singleton.m_OpenLog));
+            ImGui::MenuItem("Localisations Manager", NULL, &(m_singleton.m_OpenLocalisationsManager));
             ImGui::MenuItem("Style", NULL, &(m_singleton.m_OpenStyle));
+            ImGui::Separator();
             ImGui::MenuItem("Exit", NULL, &(m_singleton.m_shouldExit));
             ImGui::EndMenu();
         }
@@ -112,21 +122,36 @@ void Core::Application::EditorWindows()
     }
 
     ImGui::BeginChild("ChildL", ImVec2(ImGui::GetContentRegionAvail().x * (m_singleton.m_fullscreenGame ? 0.5f : 0.225f), ImGui::GetContentRegionAvail().y), ImGuiChildFlags_Border, ImGuiWindowFlags_HorizontalScrollbar);
-    if (ImGui::BeginTabBar("MyTabBar", ImGuiTabBarFlags_None))
+    if (ImGui::BeginTabBar("LeftTabBar", ImGuiTabBarFlags_None))
     {
-        if (ImGui::BeginTabItem("Avocado"))
+        if (ImGui::BeginTabItem("Settings"))
         {
-            ImGui::Text("This is the Avocado tab!\nblah blah blah blah blah");
+            if (ImGui::CollapsingHeader("Cameras Manager"))
+                m_singleton.m_camerasManager.ShowEditorControl();
+            if (ImGui::CollapsingHeader("Inputs Manager"))
+                m_singleton.m_inputsManager.ShowEditorControl();
+            if (ImGui::CollapsingHeader("Settings Manager"))
+                m_singleton.m_settingsManager.ShowEditorControl();
+            if (ImGui::CollapsingHeader("Time"))
+                m_singleton.m_time.ShowEditorControl();
+            if (ImGui::CollapsingHeader("Components Manager Type"))
+                m_singleton.m_componentsManager.ShowEditorControl();
+
             ImGui::EndTabItem();
         }
-        if (ImGui::BeginTabItem("Broccoli"))
+        if (ImGui::BeginTabItem("GameObject List"))
         {
-            ImGui::Text("This is the Broccoli tab!\nblah blah blah blah blah");
+            m_singleton.m_gameObjectManager.ShowEditorControl(m_singleton.m_SelectedItem);
             ImGui::EndTabItem();
         }
-        if (ImGui::BeginTabItem("Cucumber"))
+        if (ImGui::BeginTabItem("Ressources List"))
         {
-            ImGui::Text("This is the Cucumber tab!\nblah blah blah blah blah");
+            m_singleton.m_ressourcesManager.ShowEditorControl(m_singleton.m_SelectedItem);
+            ImGui::EndTabItem();
+        }
+        if (ImGui::BeginTabItem("Scenes"))
+        {
+            m_singleton.m_ressourcesManager.ShowSceneControl();
             ImGui::EndTabItem();
         }
         ImGui::EndTabBar();
@@ -137,7 +162,7 @@ void Core::Application::EditorWindows()
 
     if (!(m_singleton.m_fullscreenGame))
     {
-        ImGui::BeginChild("ChildM", ImVec2(ImGui::GetContentRegionAvail().x * 0.7f, ImGui::GetContentRegionAvail().y), ImGuiChildFlags_Border, ImGuiWindowFlags_HorizontalScrollbar);
+        ImGui::BeginChild("ChildM", ImVec2(ImGui::GetContentRegionAvail().x * 0.7f, ImGui::GetContentRegionAvail().y), ImGuiChildFlags_None, ImGuiWindowFlags_HorizontalScrollbar);
         rlImGuiImageRenderTextureFit(&(m_singleton.m_GameTexture), true);
         ImGui::EndChild();
 
@@ -145,23 +170,23 @@ void Core::Application::EditorWindows()
     }
 
     ImGui::BeginChild("ChildR", ImVec2(ImGui::GetContentRegionAvail().x, ImGui::GetContentRegionAvail().y), ImGuiChildFlags_Border, ImGuiWindowFlags_HorizontalScrollbar);
-    if (ImGui::BeginTabBar("MyTabBar", ImGuiTabBarFlags_None))
+    switch (m_singleton.m_SelectedItem.type)
     {
-        if (ImGui::BeginTabItem("GameObject Inspector"))
-        {
-            ImGui::Text("This is the Avocado tab!\nblah blah blah blah blah");
-            ImGui::EndTabItem();
-        }
-        if (ImGui::BeginTabItem("Ressources Inspector"))
-        {
-            ImGui::Text("This is the Broccoli tab!\nblah blah blah blah blah");
-            ImGui::EndTabItem();
-        }
-        ImGui::EndTabBar();
+    case Core::TYPE_ITEM_SELECTED::GAMEOBJECT:
+        m_singleton.m_gameObjectManager.ShowGameObjectInspector(m_singleton.m_SelectedItem.Data.GameObjectIndex);
+        break;
+    case Core::TYPE_ITEM_SELECTED::RESSOURCE:
+        m_singleton.m_ressourcesManager.ShowRessourceInspector(m_singleton.m_SelectedItem.Data.RessourceUUID);
+        break;
+    default:
+        ImGui::Text("No GameObject or Ressources Selected");
+        break;
     }
     ImGui::EndChild();
 
     ImGui::End();
+
+    // ---- End Main Window ----
 
     ImGui::ShowDemoWindow();
 
@@ -169,6 +194,20 @@ void Core::Application::EditorWindows()
     {
         ImGui::Begin("Dear ImGui Style Editor", &(m_singleton.m_OpenStyle));
         ImGui::ShowStyleEditor();
+        ImGui::End();
+    }
+
+    if (m_singleton.m_OpenLocalisationsManager)
+    {
+        ImGui::Begin("Localisations Window", &(m_singleton.m_OpenLocalisationsManager));
+        m_singleton.m_localisationsManager.ShowEditorControl();
+        ImGui::End();
+    }
+
+    if (m_singleton.m_OpenLog)
+    {
+        ImGui::Begin("Log Window", &(m_singleton.m_OpenLog));
+        m_singleton.m_log.ShowEditorControl();
         ImGui::End();
     }
 

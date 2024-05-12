@@ -40,8 +40,10 @@ namespace Components
 #endif // _EDITOR
 
 		const Camera3D& GetCameraData() const { return m_cameraData; }
+		bool& IsCursorLock() { return m_cursorLock; }
 
 	private:
 		Camera3D m_cameraData;
+		bool m_cursorLock;
 	};
 }

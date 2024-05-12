@@ -41,11 +41,8 @@ void Debug::Log::Print(const LOG_LEVEL level, const bool writeFL, const char* p_
 }
 
 #ifdef _EDITOR
-void Debug::Log::ShowEditorWindow(bool* p_opened)
+void Debug::Log::ShowEditorControl()
 {
-	if (m_singleton == nullptr)
-		return;
-
 	// TODO : faire les controles pour la Fenetre des logs !!
 }
 
@@ -164,7 +161,7 @@ void Debug::Log::Debug(const char* p_fmt, ...)
 	va_end(args);
 
 	m_singleton->m_cout << CurrentBuffer.data();
-	m_singleton->Print(LOG_LEVEL::DEBUG, true, p_file, p_line);
+	m_singleton->Print(LOG_LEVEL::DEBUG, true);
 
 	m_singleton->m_writting.clear();
 }
@@ -184,7 +181,7 @@ void Debug::Log::Info(const char* p_fmt, ...)
 	va_end(args);
 
 	m_singleton->m_cout << CurrentBuffer.data();
-	m_singleton->Print(LOG_LEVEL::INFO, true, p_file, p_line);
+	m_singleton->Print(LOG_LEVEL::INFO, true);
 
 	m_singleton->m_writting.clear();
 }
@@ -204,7 +201,7 @@ void Debug::Log::Warning(const char* p_fmt, ...)
 	va_end(args);
 
 	m_singleton->m_cout << CurrentBuffer.data();
-	m_singleton->Print(LOG_LEVEL::WARNING, true, p_file, p_line);
+	m_singleton->Print(LOG_LEVEL::WARNING, true);
 
 	m_singleton->m_writting.clear();
 }
@@ -224,7 +221,7 @@ void Debug::Log::Error(const char* p_fmt, ...)
 	va_end(args);
 
 	m_singleton->m_cout << CurrentBuffer.data();
-	m_singleton->Print(LOG_LEVEL::ERROR, true, p_file, p_line);
+	m_singleton->Print(LOG_LEVEL::ERROR, true);
 
 	m_singleton->m_writting.clear();
 }
@@ -244,7 +241,7 @@ void Debug::Log::Fatal(const char* p_fmt, ...)
 	va_end(args);
 
 	m_singleton->m_cout << CurrentBuffer.data();
-	m_singleton->Print(LOG_LEVEL::FATAL, true, p_file, p_line);
+	m_singleton->Print(LOG_LEVEL::FATAL, true);
 
 	m_singleton->m_writting.clear();
 }

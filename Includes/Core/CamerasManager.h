@@ -28,7 +28,7 @@ namespace Core
 		~CamerasManager() {}
 
 		void SetCurrentCamera(Components::Camera* p_CurrentCamera = nullptr) { m_CurrentCamera = p_CurrentCamera; }
-		bool TestCurrentCamera(Components::Camera* p_CurrentCamera) { return p_CurrentCamera == m_CurrentCamera; }
+		bool TestCurrentCamera(const Components::Camera* p_CurrentCamera) { return p_CurrentCamera == m_CurrentCamera; }
 
 #ifdef _EDITOR
 		void SetFreeFly(bool p_freeFly = true) { m_freeFly = p_freeFly; }
@@ -40,7 +40,7 @@ namespace Core
 		void Update();
 
 		const Camera3D& GetCameraData() const;
-		bool IsCursorLock() const { return m_CursorLock; }
+		bool IsCursorLock() const { return (m_CurrentCamera == nullptr ? false : m_CurrentCamera->IsCursorLock()); }
 
 	private:
 #ifdef _EDITOR

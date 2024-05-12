@@ -14,6 +14,10 @@ namespace Core
 		SettingsManager() {}
 		~SettingsManager() {}
 
+#ifdef _EDITOR
+		void ShowEditorControl();
+#endif // _EDITOR
+
 	private:
 	};
 }

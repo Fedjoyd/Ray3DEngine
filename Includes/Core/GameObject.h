@@ -56,7 +56,12 @@ namespace Core
 #ifdef _EDITOR
 		void EditorUpdate();
 		void EditorFixedUpdate();
+
 		void ShowEditorControl();
+
+		unsigned int GetId() const { return m_ID; }
+
+		static void SetupGameObjectID(std::vector<std::unique_ptr<Core::GameObject>>& m_gameObjectsList);
 #endif // _EDITOR
 		void Draw() const;
 		void RegisterUiComponent(std::map<float, std::pair<const GameObject*, Components::IUIRenderComponent*>>& p_uiComponent) const;
@@ -66,6 +71,10 @@ namespace Core
 		bool        m_deleteFlag;
 
 		std::vector<ComponentPtr> m_components;
+
+#ifdef _EDITOR
+		unsigned int m_ID = 0u;
+#endif // _EDITOR
 	};
 
 	// ---- Component Getter ----
