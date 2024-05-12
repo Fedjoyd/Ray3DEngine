@@ -12,22 +12,111 @@ Ressources::RessourcesManager::RessourcesManager()
 #endif // _EDITOR
 }
 
-bool Ressources::RessourcesManager::AddRessourceCreator(const std::type_info& p_typeData, std::function<IRessource* (const int64_t)> p_creator)
+void Ressources::RessourcesManager::LoadProjectRessources(tinyxml2::XMLElement* p_XMLRessourceManager, bool p_dontLoadSceneList)
 {
-	if (Core::Application::GetInstance().GetRessourcesManager().m_RessourceCreators.find(p_typeData.hash_code()) != Core::Application::GetInstance().GetRessourcesManager().m_RessourceCreators.end())
+	if (p_XMLRessourceManager == nullptr)
+		return;
+
+	tinyxml2::XMLElement* ListXMLRessources = p_XMLRessourceManager->FirstChildElement("Ressources");
+	tinyxml2::XMLElement* CurrentXMLRessource = nullptr;
+
+	if (ListXMLRessources != nullptr)
+		CurrentXMLRessource = ListXMLRessources->FirstChildElement("Ressource");
+
+	RessourcePtr CurrentRessourceAdded = nullptr;
+
+	while (CurrentXMLRessource != nullptr)
+	{
+		CurrentRessourceAdded = RegisterRessource(CurrentXMLRessource->UnsignedAttribute("Type"), CurrentXMLRessource->Int64Attribute("UUID"));
+
+		if (CurrentRessourceAdded != nullptr)
+			CurrentRessourceAdded->DeserializeRessource(CurrentXMLRessource);
+
+		CurrentXMLRessource = CurrentXMLRessource->NextSiblingElement("Ressource");
+	}
+
+	if (p_dontLoadSceneList)
+		return;
+
+	tinyxml2::XMLElement* ListXMLScenes = p_XMLRessourceManager->FirstChildElement("Scenes");
+	tinyxml2::XMLElement* CurrentXMLScene = nullptr;
+
+	if (ListXMLScenes != nullptr)
+		CurrentXMLScene = ListXMLScenes->FirstChildElement("Scene");
+
+	std::string ToAddSceneName = "";
+
+	while (CurrentXMLScene != nullptr)
+	{
+		ToAddSceneName = CurrentXMLScene->GetText();
+
+		if (ToAddSceneName != "" && m_scenes.find(ToAddSceneName) == m_scenes.end())
+		{
+			m_scenes.insert({ ToAddSceneName, std::make_shared<DefaultScene>(ToAddSceneName) });
+			ToAddSceneName = "";
+		}
+
+		CurrentXMLScene = CurrentXMLScene->NextSiblingElement("Scene");
+	}
+}
+
+#ifdef _EDITOR
+bool Ressources::RessourcesManager::SaveProjectRessources(tinyxml2::XMLElement* p_XMLRessourceManager, bool p_dontSaveSceneList)
+{
+	if (p_XMLRessourceManager == nullptr)
 		return false;
 
-	Core::Application::GetInstance().GetRessourcesManager().m_RessourceCreators.emplace(p_typeData.hash_code(), p_creator);
+	tinyxml2::XMLElement* ListXMLRessources = p_XMLRessourceManager->InsertNewChildElement("Ressources");
+	tinyxml2::XMLElement* CurrentXMLRessource = nullptr;
+
+	if (ListXMLRessources != nullptr)
+		for (const std::pair<int64_t, RessourcePtr>& currentRessource : m_ressources)
+		{
+			CurrentXMLRessource = ListXMLRessources->InsertNewChildElement("Ressource");
+
+			if (CurrentXMLRessource != nullptr)
+				currentRessource.second->SerializeRessource(CurrentXMLRessource);
+		}
+	else
+		return false;
+
+	if (p_dontSaveSceneList)
+		return true;
+
+	tinyxml2::XMLElement* ListXMLScene = p_XMLRessourceManager->FirstChildElement("Scenes");
+	tinyxml2::XMLElement* CurrentXMLScene = nullptr;
+
+	if (ListXMLScene != nullptr)
+		for (const std::pair<std::string, ScenePtr>& currentScene : m_scenes)
+		{
+			CurrentXMLScene = ListXMLScene->InsertNewChildElement("Scene");
+
+			if (CurrentXMLScene != nullptr)
+				CurrentXMLScene->SetText(currentScene.first.c_str());
+		}
+	else
+		return false;
+
+	return true;
+}
+#endif // _EDITOR
+
+bool Ressources::RessourcesManager::AddRessourceCreator(const std::type_info& p_typeData, std::function<IRessource* (const int64_t)> p_creator)
+{
+	if (Core::Application::GetRessourcesManager().m_RessourceCreators.find(p_typeData.hash_code()) != Core::Application::GetRessourcesManager().m_RessourceCreators.end())
+		return false;
+
+	Core::Application::GetRessourcesManager().m_RessourceCreators.emplace(p_typeData.hash_code(), p_creator);
 #ifdef _EDITOR
-	Core::Application::GetInstance().GetRessourcesManager().m_RessourceCreatorsName.push_back(p_typeData.name());
-	Core::Application::GetInstance().GetRessourcesManager().m_RessourceCreatorsHash.push_back(p_typeData.hash_code());
-	Core::Application::GetInstance().GetRessourcesManager().m_resourcesFilter.insert({ p_typeData.hash_code(), true });
+	Core::Application::GetRessourcesManager().m_RessourceCreatorsName.push_back(p_typeData.name());
+	Core::Application::GetRessourcesManager().m_RessourceCreatorsHash.push_back(p_typeData.hash_code());
+	Core::Application::GetRessourcesManager().m_resourcesFilter.insert({ p_typeData.hash_code(), true });
 #endif // _EDITOR
 
 	return true;
 }
 
-RessourcePtr Ressources::RessourcesManager::RegisterResource(size_t p_TypeHash, int64_t p_resourceUUID)
+RessourcePtr Ressources::RessourcesManager::RegisterRessource(size_t p_TypeHash, int64_t p_resourceUUID)
 {
 	if (m_RessourceCreators.find(p_TypeHash) == m_RessourceCreators.end())
 		return nullptr;
@@ -40,7 +129,7 @@ RessourcePtr Ressources::RessourcesManager::RegisterResource(size_t p_TypeHash, 
 	return NewRessource;
 }
 
-void Ressources::RessourcesManager::UnloadUnusedResource()
+void Ressources::RessourcesManager::UnloadUnusedRessource()
 {
 	for (const std::pair<size_t, RessourcePtr>& current : m_ressources)
 	{
@@ -49,15 +138,15 @@ void Ressources::RessourcesManager::UnloadUnusedResource()
 	}
 
 	for (const std::pair<size_t, RessourcePtr>& current : m_ressources)
-    {
-        if (current.second.use_count() == 2l)
-            current.second->UnloadResource();
-    }
+	{
+		if (current.second.use_count() == 2l)
+			current.second->UnloadResource();
+	}
 }
 
 ScenePtr Ressources::RessourcesManager::GetScene(const std::string& m_sceneName)
 {
-    if (m_scenes.find(m_sceneName) == m_scenes.end())
+	if (m_scenes.find(m_sceneName) == m_scenes.end())
 		return nullptr;
 
 	return m_scenes[m_sceneName];
@@ -65,14 +154,14 @@ ScenePtr Ressources::RessourcesManager::GetScene(const std::string& m_sceneName)
 
 bool Ressources::RessourcesManager::RegisterScene(ScenePtr p_newScene)
 {
-    if (p_newScene == nullptr)
-        return false;
+	if (p_newScene == nullptr)
+		return false;
 
-    if (m_scenes.find(p_newScene->GetName()) != m_scenes.end())
+	if (m_scenes.find(p_newScene->GetName()) != m_scenes.end())
 		return false;
 
 	m_scenes.insert({ p_newScene->GetName(), p_newScene });
-    return true;
+	return true;
 }
 
 #ifdef _EDITOR
@@ -82,14 +171,14 @@ bool Ressources::RessourcesManager::RegisterScene(ScenePtr p_newScene)
 void Ressources::RessourcesManager::ShowEditorControl(Core::ItemSelectionData& p_selectedItem)
 {
 	if (ImGui::Button("Unload unused ressource"))
-		UnloadUnusedResource();
+		UnloadUnusedRessource();
 
-	ImGui::SameLine();
-	ImGui::Text("|");
+	//ImGui::SameLine();
+	//ImGui::Text("|");
 
 	for (size_t indexTypeName = 1u; indexTypeName < m_RessourceCreatorsName.size(); indexTypeName++)
 	{
-		ImGui::SameLine();
+		//ImGui::SameLine();
 		ImGui::Checkbox(m_RessourceCreatorsName[indexTypeName], &(m_resourcesFilter[m_RessourceCreatorsHash[indexTypeName]]));
 	}
 
@@ -109,7 +198,7 @@ void Ressources::RessourcesManager::ShowEditorControl(Core::ItemSelectionData& p
 
 		ImGui::SameLine();
 
-		if (ImGui::Selectable(("[ " + std::string(currentResource.second->GetType().name()) + " ] " + currentResource.second->GetName()).c_str()))
+		if (ImGui::Selectable((/*"[ " + std::string(currentResource.second->GetType().name()) + " ] " +*/currentResource.second->GetName() + "##Ressource_" + std::to_string(currentResource.first)).c_str()))
 		{
 			p_selectedItem.type = Core::TYPE_ITEM_SELECTED::RESSOURCE;
 			p_selectedItem.Data.RessourceUUID = currentResource.first;
@@ -118,7 +207,7 @@ void Ressources::RessourcesManager::ShowEditorControl(Core::ItemSelectionData& p
 		// drag sources here!
 		if (ImGui::BeginDragDropSource(ImGuiDragDropFlags_None))
 		{
-			static int64_t currentUUID = 0u;
+			static int64_t currentUUID = 0L;
 			currentUUID = currentResource.first;
 
 			ImGui::SetDragDropPayload("DND_RESOURCE", &currentUUID, sizeof(int64_t));
@@ -133,7 +222,7 @@ void Ressources::RessourcesManager::ShowEditorControl(Core::ItemSelectionData& p
 	{
 		if (indexComboBox != 0)
 		{
-			RessourcePtr NewRess = RegisterResource(m_RessourceCreatorsHash[indexComboBox]);
+			RessourcePtr NewRess = RegisterRessource(m_RessourceCreatorsHash[indexComboBox]);
 
 			if (NewRess != nullptr)
 			{
@@ -166,7 +255,7 @@ void Ressources::RessourcesManager::ShowSceneControl()
 
 			ImGui::SameLine();
 			if (ImGui::Button(("Save##Scene" + CurrentScnRef->GetName()).c_str()))
-				Core::Application::GetInstance().GetGameObjectManager().SaveScene(CurrentScnRef);
+				Core::Application::GetGameObjectManager().SaveScene(CurrentScnRef);
 		}
 		else
 		{
@@ -196,7 +285,7 @@ void Ressources::RessourcesManager::ShowSceneControl()
 			if (ImGui::Button("OK", ImVec2(120, 0)))
 			{
 				ImGui::CloseCurrentPopup();
-				Core::Application::GetInstance().GetGameObjectManager().SaveScene(CurrentScnRef);
+				Core::Application::GetGameObjectManager().SaveScene(CurrentScnRef);
 			}
 
 			ImGui::SetItemDefaultFocus();
@@ -250,9 +339,8 @@ void Ressources::RessourcesManager::ShowRessourceInspector(int64_t p_selectedRes
 	if (m_ressources.find(p_selectedRessource) != m_ressources.end())
 	{
 		ImGui::InputText("##RessourceName", &(m_ressources[p_selectedRessource]->GetName()));
-		ImGui::Text("UUID : %lld\ntype : %s\nuse count = %ld", m_ressources[p_selectedRessource]->GetUUID(), m_ressources[p_selectedRessource]->GetType().name(), m_ressources[p_selectedRessource].use_count());
 
-		ImGui::Spacing();
+		ImGui::SameLine();
 
 		if (ImGui::Button("Delete##Resource"))
 		{
@@ -262,7 +350,10 @@ void Ressources::RessourcesManager::ShowRessourceInspector(int64_t p_selectedRes
 			else
 				directDelete = true;
 		}
-		ImGui::SameLine();
+
+		ImGui::Text("UUID : %lld\ntype : %s\nuse count = %ld", m_ressources[p_selectedRessource]->GetUUID(), m_ressources[p_selectedRessource]->GetType().name(), m_ressources[p_selectedRessource].use_count());
+		ImGui::Spacing();
+
 		if (m_ressources[p_selectedRessource]->IsLoaded())
 		{
 			if (ImGui::Button("Unload##Resource"))
@@ -317,5 +408,26 @@ void Ressources::RessourcesManager::ShowRessourceInspector(int64_t p_selectedRes
 			directDelete = false;
 		}
 	}
+}
+
+bool Ressources::RessourcesManager::RessourceDnDTarget(int64_t* p_ptrResID)
+{
+	if (p_ptrResID == nullptr)
+		return false;
+
+	if (ImGui::BeginDragDropTarget())
+	{
+		if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("DND_RESOURCE"))
+		{
+			*p_ptrResID = *((int64_t*)payload->Data);
+
+			ImGui::EndDragDropTarget();
+			return true;
+		}
+
+		ImGui::EndDragDropTarget();
+	}
+
+	return false;
 }
 #endif // _EDITOR

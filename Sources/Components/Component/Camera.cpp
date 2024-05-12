@@ -8,8 +8,8 @@ Components::Camera::Camera() : m_cameraData({ 0 }), m_cursorLock(false)
 
 Components::Camera::~Camera()
 {
-	if (Core::Application::GetInstance().GetCamerasManager().TestCurrentCamera(this))
-		Core::Application::GetInstance().GetCamerasManager().SetCurrentCamera();
+	if (Core::Application::GetCamerasManager().TestCurrentCamera(this))
+		Core::Application::GetCamerasManager().SetCurrentCamera();
 }
 
 void Components::Camera::DeserializeComponent(tinyxml2::XMLElement* p_XMLComponent)
@@ -24,7 +24,7 @@ void Components::Camera::SerializeComponent(tinyxml2::XMLElement* p_XMLComponent
 
 void Components::Camera::SetCurrentCamera()
 {
-	Core::Application::GetInstance().GetCamerasManager().SetCurrentCamera(this);
+	Core::Application::GetCamerasManager().SetCurrentCamera(this);
 }
 
 void Components::Camera::Start(Core::GameObject* p_gameObject)
@@ -44,15 +44,15 @@ void Components::Camera::ShowEditorControl(const unsigned int p_indexComponent)
 {
 	ImGui::SameLine();
 
-	if (Core::Application::GetInstance().GetCamerasManager().TestCurrentCamera(this))
+	if (Core::Application::GetCamerasManager().TestCurrentCamera(this))
 	{
 		if (ImGui::Button(("Deselect##camera" + std::to_string(p_indexComponent)).c_str()))
-			Core::Application::GetInstance().GetCamerasManager().SetCurrentCamera();
+			Core::Application::GetCamerasManager().SetCurrentCamera();
 	}
 	else
 	{
 		if (ImGui::Button(("Select##camera" + std::to_string(p_indexComponent)).c_str()))
-			Core::Application::GetInstance().GetCamerasManager().SetCurrentCamera(this);
+			Core::Application::GetCamerasManager().SetCurrentCamera(this);
 	}
 
 	ImGui::Spacing();

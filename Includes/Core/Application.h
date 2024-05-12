@@ -28,6 +28,7 @@
 
 #include "Components/ComponentsManager.h"
 #include "Ressources/RessourcesManager.h"
+#include "Physics/PhysicsManager.h"
 
 namespace Core
 {
@@ -68,26 +69,18 @@ namespace Core
 		static RenderTexture2D& GameRenderTexture() { return m_singleton.m_GameTexture; }
 #endif // _EDITOR
 
-		GameObjectManager& GetGameObjectManager() { return m_gameObjectManager; }
-		const GameObjectManager& GetGameObjectManager() const { return m_gameObjectManager; }
-		Components::ComponentsManager& GetComponentsManager() { return m_componentsManager; }
-		const Components::ComponentsManager& GetComponentsManager() const { return m_componentsManager; }
-		Ressources::RessourcesManager& GetRessourcesManager() { return m_ressourcesManager; }
-		const Ressources::RessourcesManager& GetRessourcesManager() const { return m_ressourcesManager; }
+		static GameObjectManager& GetGameObjectManager() { return m_singleton.m_gameObjectManager; }
+		static Components::ComponentsManager& GetComponentsManager() { return m_singleton.m_componentsManager; }
+		static Ressources::RessourcesManager& GetRessourcesManager() { return m_singleton.m_ressourcesManager; }
+		static Physics::PhysicsManager& GetPhysicsManager() { return m_singleton.m_physicsManager; }
 
-		CamerasManager& GetCamerasManager() { return m_camerasManager; }
-		const CamerasManager& GetCamerasManager() const { return m_camerasManager; }
-		InputsManager& GetInputsManager() { return m_inputsManager; }
-		const InputsManager& GetInputsManager() const { return m_inputsManager; }
-		LocalisationsManager& GetLocalisationsManager() { return m_localisationsManager; }
-		const LocalisationsManager& GetLocalisationsManager() const { return m_localisationsManager; }
-		SettingsManager& GetSettingsManager() { return m_settingsManager; }
-		const SettingsManager& GetSettingsManager() const { return m_settingsManager; }
+		static CamerasManager& GetCamerasManager() { return m_singleton.m_camerasManager; }
+		static InputsManager& GetInputsManager() { return m_singleton.m_inputsManager; }
+		static LocalisationsManager& GetLocalisationsManager() { return m_singleton.m_localisationsManager; }
+		static SettingsManager& GetSettingsManager() { return m_singleton.m_settingsManager; }
 
-		Debug::Log& GetLog() { return m_log; }
-		const Debug::Log& GetLog() const { return m_log; }
-		Time& GetTime() { return m_time; }
-		const Time& GetTime() const { return m_time; }
+		static Debug::Log& GetLog() { return m_singleton.m_log; }
+		static Time& GetTime() { return m_singleton.m_time; }
 
 	private:
 		static Application m_singleton;
@@ -109,6 +102,7 @@ namespace Core
 		GameObjectManager m_gameObjectManager;
 		Components::ComponentsManager m_componentsManager;
 		Ressources::RessourcesManager m_ressourcesManager;
+		Physics::PhysicsManager m_physicsManager;
 
 		CamerasManager m_camerasManager;
 		InputsManager m_inputsManager;

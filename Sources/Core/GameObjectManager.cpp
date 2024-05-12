@@ -41,12 +41,12 @@ bool Core::GameObjectManager::SaveScene(ScenePtr& m_SceneToSave)
 	tinyxml2::XMLElement* CurrentXMLGameObject = nullptr;
 
 	if (ListXMLGameObject != nullptr)
-		for (GameObjectPtr& currentGameObjet : m_gameObjectsList)
+		for (GameObjectPtr& currentGameObject : m_gameObjectsList)
 		{
 			CurrentXMLGameObject = ListXMLGameObject->InsertNewChildElement("GameObject");
 
 			if (CurrentXMLGameObject != nullptr)
-				currentGameObjet->SerializeGameObject(CurrentXMLGameObject);
+				currentGameObject->SerializeGameObject(CurrentXMLGameObject);
 		}
 	else
 		return false;
@@ -136,12 +136,8 @@ void Core::GameObjectManager::ShowEditorControl(ItemSelectionData& p_selectedIte
 		}
 	}
 
-
-	static std::string newSceneName = "";
-	ImGui::InputText("##GameObjectName", &newSceneName);
-	ImGui::SameLine();
-	if (ImGui::Button("Add GameObject##GameObjectName"))
-		m_gameObjectsList.emplace_back(std::make_unique<GameObject>(newSceneName));
+	if (ImGui::Button("Add GameObject##GameObjectCreator"))
+		m_gameObjectsList.emplace_back(std::make_unique<GameObject>("GameObject"));
 }
 
 void Core::GameObjectManager::ShowGameObjectInspector(size_t p_selectedGameObject)

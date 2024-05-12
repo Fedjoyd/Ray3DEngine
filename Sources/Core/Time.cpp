@@ -12,17 +12,17 @@ Core::Time::Time() :
 
 float Core::Time::DeltaTime()
 {
-    return GetFrameTime() * Application::GetInstance().GetTime().TimeScale();
+    return GetFrameTime() * Core::Application::GetTime().TimeScale();
 }
 
 float Core::Time::FixedDeltaTime()
 {
-    return (Application::GetInstance().GetTime().m_fixedDeltaTime < GetFrameTime() ? Application::GetInstance().GetTime().m_fixedDeltaTime : GetFrameTime()) * Application::GetInstance().GetTime().TimeScale();
+    return (Core::Application::GetTime().m_fixedDeltaTime < GetFrameTime() ? Core::Application::GetTime().m_fixedDeltaTime : GetFrameTime()) * Core::Application::GetTime().TimeScale();
 }
 
 int Core::Time::Fixing()
 {
-    return (Application::GetInstance().GetTime().m_fixCount == 0 ? 1 : Application::GetInstance().GetTime().m_fixCount);
+    return (Core::Application::GetTime().m_fixCount == 0 ? 1 : Core::Application::GetTime().m_fixCount);
 }
 
 

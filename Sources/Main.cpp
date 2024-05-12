@@ -14,6 +14,7 @@
 
 #ifdef _EDITOR
 #include "imgui.h"
+#include "imgui_stdlib.h"
 #include "rlImGui.h"
 #endif // _EDITOR
 
@@ -22,16 +23,6 @@
 #include "Debug/Log.h"
 #define R3DE_CURRENT_FILE "Main.cpp"
 
-class TestComponent : public Components::IComponent
-{
-public:
-    TestComponent() {}
-    ~TestComponent() {}
-
-    REGISTER_COMPONENT(TestComponent, Components::COMPONENT_TYPE_NOTHING)
-
-private:
-};
 class TestRessource : public Ressources::IRessource
 {
 public:
@@ -51,6 +42,47 @@ public:
     REGISTER_RESSOURCE(TestRessource2)
 
 private:
+};
+
+class TestComponent : public Components::IComponent
+{
+public:
+    TestComponent() {}
+    ~TestComponent() {}
+
+    REGISTER_COMPONENT(TestComponent, Components::COMPONENT_TYPE_NOTHING)
+
+#ifdef _EDITOR
+        void ShowEditorControl(const unsigned int p_indexComponent) override
+    {
+        IComponent::ShowEditorControl(p_indexComponent);
+
+        static int64_t TestComponentDnDID = 0L;
+
+        ImGui::Text("TestRessource :");
+        ImGui::SameLine();
+        ImGui::InputText(("##TestRessourceOfTestComponent_" + std::to_string(p_indexComponent)).c_str(), &m_TestRessourceName, ImGuiInputTextFlags_ReadOnly);
+        if (Ressources::RessourcesManager::RessourceDnDTarget(&TestComponentDnDID))
+            if (Core::Application::GetRessourcesManager().TryGetAndLoadRessource(TestComponentDnDID, &m_TestRessource))
+            {
+                m_TestRessourceName = m_TestRessource->GetName() + " (" + std::to_string(m_TestRessource->GetUUID()) + ")";
+                TestComponentDnDID = 0L;
+            }
+        ImGui::SameLine();
+        if (ImGui::Button(("X##TestRessourceOfTestComponent_" + std::to_string(p_indexComponent)).c_str()))
+        {
+            m_TestRessource = nullptr;
+            m_TestRessourceName = "Empty";
+        }
+    }
+#endif // _EDITOR
+
+private:
+    std::shared_ptr<TestRessource> m_TestRessource = nullptr;
+
+#ifdef _EDITOR
+    std::string m_TestRessourceName = "Empty";
+#endif // _EDITOR
 };
 
 #ifdef _CONSOLE

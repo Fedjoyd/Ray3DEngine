@@ -12,13 +12,13 @@ Components::ComponentsManager::ComponentsManager()
 
 bool Components::ComponentsManager::AddComponentCreator(const std::type_info& p_typeData, std::function<IComponent* (void)> p_creator)
 {
-    if (Core::Application::GetInstance().GetComponentsManager().m_ComponentCreators.find(p_typeData.hash_code()) != Core::Application::GetInstance().GetComponentsManager().m_ComponentCreators.end())
+    if (Core::Application::GetComponentsManager().m_ComponentCreators.find(p_typeData.hash_code()) != Core::Application::GetComponentsManager().m_ComponentCreators.end())
         return false;
 
-    Core::Application::GetInstance().GetComponentsManager().m_ComponentCreators.emplace(p_typeData.hash_code(), p_creator);
+    Core::Application::GetComponentsManager().m_ComponentCreators.emplace(p_typeData.hash_code(), p_creator);
 #ifdef _EDITOR
-    Core::Application::GetInstance().GetComponentsManager().m_ComponentCreatorsName.push_back(p_typeData.name());
-    Core::Application::GetInstance().GetComponentsManager().m_ComponentCreatorsHash.push_back(p_typeData.hash_code());
+    Core::Application::GetComponentsManager().m_ComponentCreatorsName.push_back(p_typeData.name());
+    Core::Application::GetComponentsManager().m_ComponentCreatorsHash.push_back(p_typeData.hash_code());
 #endif // _EDITOR
 
     return true;
@@ -46,7 +46,7 @@ void Components::ComponentsManager::ShowEditorControl()
 bool Components::ComponentsManager::ShowComponentCombotBox(size_t* p_componentHash)
 {
     static size_t indexCombo = 0u;
-    ComponentsManager& cmpManager = Core::Application::GetInstance().GetComponentsManager();
+    ComponentsManager& cmpManager = Core::Application::GetComponentsManager();
 
     if (ImGui::Combo("##comboBoxComponent", (int*)&indexCombo, cmpManager.m_ComponentCreatorsName.data(), (int)cmpManager.m_ComponentCreatorsName.size()))
     {

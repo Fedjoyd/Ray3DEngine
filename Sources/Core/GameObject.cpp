@@ -16,7 +16,7 @@ void Core::GameObject::DeserializeGameObject(tinyxml2::XMLElement* p_XMLGameObje
 
 	while (ComponentElement != nullptr)
 	{
-		m_components.emplace_back(Core::Application::GetInstance().GetComponentsManager().CreateComponent(ComponentElement->UnsignedAttribute("Type")));
+		m_components.emplace_back(Core::Application::GetComponentsManager().CreateComponent(ComponentElement->UnsignedAttribute("Type")));
 
 		m_components.back()->DeserializeComponent(ComponentElement);
 
@@ -169,7 +169,7 @@ void Core::GameObject::ShowEditorControl()
 
 	size_t ComponentHash = 0;
 	if (Components::ComponentsManager::ShowComponentCombotBox(&ComponentHash))
-		m_components.emplace_back(Core::Application::GetInstance().GetComponentsManager().CreateComponent(ComponentHash));
+		m_components.emplace_back(Core::Application::GetComponentsManager().CreateComponent(ComponentHash));
 }
 
 void Core::GameObject::SetupGameObjectID(std::vector<GameObjectPtr>& m_gameObjectsList)

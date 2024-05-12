@@ -26,7 +26,7 @@ void Core::Application::Update()
         if (nextScene != nullptr)
         {
             m_singleton.m_gameObjectManager.LoadScene(nextScene);
-            m_singleton.m_ressourcesManager.UnloadUnusedResource();
+            m_singleton.m_ressourcesManager.UnloadUnusedRessource();
 
             R3DE_INFO("Scene %s loaded !", nextScene->GetName().c_str());
 
