@@ -1,6 +1,7 @@
 #pragma once
 
 #include <string>
+#include <vector>
 #include <atomic>
 #include <sstream>
 
@@ -9,37 +10,37 @@
 #pragma warning( disable : 4005 )
 #define R3DE_CURRENT_FILE __FILE__
 
-#ifdef _EDITOR
-#define R3DE_DEBUG(text, ...) Debug::Log::Debug(R3DE_CURRENT_FILE, __LINE__, text, __VA_ARGS__)
-#define R3DE_INFO(text, ...) Debug::Log::Info(R3DE_CURRENT_FILE, __LINE__, text, __VA_ARGS__) 
-#define R3DE_WARNING(text, ...) Debug::Log::Warning(R3DE_CURRENT_FILE, __LINE__, text, __VA_ARGS__)
-#define R3DE_ERROR(text, ...) Debug::Log::Error(R3DE_CURRENT_FILE, __LINE__, text, __VA_ARGS__) 
-#define R3DE_FATAL(text, ...) Debug::Log::Fatal(R3DE_CURRENT_FILE, __LINE__, text, __VA_ARGS__) 
-#else // !_EDITOR
-#define R3DE_DEBUG(text, ...) Debug::Log::Debug(text, __VA_ARGS__)
-#define R3DE_INFO(text, ...) Debug::Log::Info(text, __VA_ARGS__) 
-#define R3DE_WARNING(text, ...) Debug::Log::Warning(text, __VA_ARGS__)
-#define R3DE_ERROR(text, ...) Debug::Log::Error(text, __VA_ARGS__)
-#define R3DE_FATAL(text, ...) Debug::Log::Fatal(text, __VA_ARGS__)
+#if defined (_DEBUG) || defined (_DEBUG_LOG)
+#define R3DE_DEBUG(text, ...) Debug::Log::PrintLog(Debug::LOG_LEVEL::DEBUG, R3DE_CURRENT_FILE, __LINE__, text, __VA_ARGS__)
+#define R3DE_INFO(text, ...) Debug::Log::PrintLog(Debug::LOG_LEVEL::INFO, R3DE_CURRENT_FILE, __LINE__, text, __VA_ARGS__) 
+#define R3DE_WARNING(text, ...) Debug::Log::PrintLog(Debug::LOG_LEVEL::WARNING, R3DE_CURRENT_FILE, __LINE__, text, __VA_ARGS__)
+#define R3DE_ERROR(text, ...) Debug::Log::PrintLog(Debug::LOG_LEVEL::mERROR, R3DE_CURRENT_FILE, __LINE__, text, __VA_ARGS__) 
+#define R3DE_FATAL(text, ...) Debug::Log::PrintLog(Debug::LOG_LEVEL::FATAL, R3DE_CURRENT_FILE, __LINE__, text, __VA_ARGS__) 
+#else // !_DEBUG
+#define R3DE_DEBUG(text, ...) Debug::Log::PrintLog(Debug::LOG_LEVEL::DEBUG, text, __VA_ARGS__)
+#define R3DE_INFO(text, ...) Debug::Log::PrintLog(Debug::LOG_LEVEL::INFO, text, __VA_ARGS__) 
+#define R3DE_WARNING(text, ...) Debug::Log::PrintLog(Debug::LOG_LEVEL::WARNING, text, __VA_ARGS__)
+#define R3DE_ERROR(text, ...) Debug::Log::PrintLog(Debug::LOG_LEVEL::mERROR, text, __VA_ARGS__)
+#define R3DE_FATAL(text, ...) Debug::Log::PrintLog(Debug::LOG_LEVEL::FATAL, text, __VA_ARGS__)
 #endif
 
 namespace Debug
 {
-	enum class LOG_LEVEL : unsigned int
-	{
-		DEBUG = 0u,
-		INFO,
-		WARNING,
-		ERROR,
-		FATAL
-	};
-
 	class ILogger
 	{
 	public:
 		virtual void Print(const std::string& p_str) = 0;
 		virtual void Clear() = 0;
 	};
+
+#ifdef _EDITOR
+	struct LogItem
+	{
+		LOG_LEVEL Level;
+		std::string FileLine;
+		std::string Text;
+	};
+#endif // _EDITOR
 
 	class Log
 	{
@@ -49,31 +50,17 @@ namespace Debug
 
 		static void SetInstance(Log* p_singleton) { m_singleton = p_singleton; }
 
-#ifdef _EDITOR
+#if defined (_DEBUG) || defined (_DEBUG_LOG)
 		// safe for multithreading
-		static void Debug(const char* p_file, const unsigned p_line, const char* p_fmt, ...);
+		static void PrintLog(const LOG_LEVEL p_level, const char* p_file, const unsigned p_line, const char* p_fmt, ...);
+#else // _DEBUG
 		// safe for multithreading
-		static void Info(const char* p_file, const unsigned p_line, const char* p_fmt, ...);
-		// safe for multithreading
-		static void Warning(const char* p_file, const unsigned p_line, const char* p_fmt, ...);
-		// safe for multithreading
-		static void Error(const char* p_file, const unsigned p_line, const char* p_fmt, ...);
-		// safe for multithreading
-		static void Fatal(const char* p_file, const unsigned p_line, const char* p_fmt, ...);
+		static void PrintLog(const LOG_LEVEL p_level, const char* p_fmt, ...);
+#endif // !_DEBUG
 
+#ifdef _EDITOR
 		void ShowEditorControl();
-#else // !_EDITOR
-		// safe for multithreading
-		static void Debug(const char* p_fmt, ...);
-		// safe for multithreading
-		static void Info(const char* p_fmt, ...);
-		// safe for multithreading
-		static void Warning(const char* p_fmt, ...);
-		// safe for multithreading
-		static void Error(const char* p_fmt, ...);
-		// safe for multithreading
-		static void Fatal(const char* p_fmt, ...);
-#endif
+#endif // _Editor
 
 		void Clear();
 
@@ -87,6 +74,10 @@ namespace Debug
 
 		std::stringstream m_cout;
 		ILogger* m_externalLogger;
+#ifdef _EDITOR
+		std::vector<LogItem> m_logList;
+		bool m_scrollToBottom = true;
+#endif // _EDITOR
 		std::atomic_flag m_writting = ATOMIC_FLAG_INIT;
 
 		bool LOG_LEVEL_show[5] = { true, true, true, true, true };

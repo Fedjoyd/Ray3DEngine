@@ -93,7 +93,7 @@ public:
     CmdLogger() {}
     ~CmdLogger() {}
 
-    void Print(const std::string& p_str) override { std::cout << p_str; }
+    void Print(const std::string& p_str) override { std::cout << p_str << "\n"; }
     void Clear() override {}
 };
 
