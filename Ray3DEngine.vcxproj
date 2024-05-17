@@ -200,6 +200,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="External\Sources\imgui.cpp" />
+    <ClCompile Include="External\Sources\ImGuizmo.cpp" />
     <ClCompile Include="External\Sources\imgui_demo.cpp" />
     <ClCompile Include="External\Sources\imgui_draw.cpp" />
     <ClCompile Include="External\Sources\imgui_stdlib.cpp" />
@@ -229,6 +230,7 @@
   <ItemGroup>
     <ClInclude Include="External\Includes\imconfig.h" />
     <ClInclude Include="External\Includes\imgui.h" />
+    <ClInclude Include="External\Includes\ImGuizmo.h" />
     <ClInclude Include="External\Includes\imgui_impl_raylib.h" />
     <ClInclude Include="External\Includes\imgui_internal.h" />
     <ClInclude Include="External\Includes\imgui_stdlib.h" />

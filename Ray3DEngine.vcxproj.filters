@@ -135,6 +135,9 @@
     <ClCompile Include="Sources\Components\Component\Transform.cpp">
       <Filter>Fichiers sources\Components\Component</Filter>
     </ClCompile>
+    <ClCompile Include="External\Sources\ImGuizmo.cpp">
+      <Filter>Fichiers sources\External</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="External\Includes\raygui.h">
@@ -234,6 +237,9 @@
       <Filter>Fichiers d%27en-tête\Components\Component</Filter>
     </ClInclude>
     <ClInclude Include="External\Includes\Snowflake.hpp">
+      <Filter>Fichiers d%27en-tête\External</Filter>
+    </ClInclude>
+    <ClInclude Include="External\Includes\ImGuizmo.h">
       <Filter>Fichiers d%27en-tête\External</Filter>
     </ClInclude>
   </ItemGroup>
