@@ -53,6 +53,7 @@ namespace Core
 		static bool		   IsCurrentScene(const std::string& p_TestScene) { return (p_TestScene == m_singleton.m_CurrentSceneName); }
 
 		static void Update();
+		static void RenderCamera();
 		static void Draw();
 #ifdef _EDITOR
 		static void EditorWindows();
@@ -67,6 +68,8 @@ namespace Core
 #ifdef _EDITOR
 		static bool FullscreenGame() { return (m_singleton.m_ShowEditorControl ? m_singleton.m_fullscreenGame : true); }
 		static RenderTexture2D& GameRenderTexture() { return m_singleton.m_GameTexture; }
+
+		static bool Running() { return m_singleton.m_run; }
 #endif // _EDITOR
 
 		static GameObjectManager& GetGameObjectManager() { return m_singleton.m_gameObjectManager; }
@@ -119,6 +122,8 @@ namespace Core
 		bool m_ShowEditorControl = true;
 		bool m_fullscreenGame = false;
 		RenderTexture2D m_GameTexture = { 0 };
+
+		bool m_run = false;
 
 		bool m_OpenStyle = false;
 		bool m_OpenLocalisationsManager = false;

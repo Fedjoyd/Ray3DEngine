@@ -184,7 +184,7 @@ void Core::GameObject::SetupGameObjectID(std::vector<GameObjectPtr>& m_gameObjec
 }
 #endif
 
-void Core::GameObject::Draw() const
+void Core::GameObject::Draw(uint64_t p_layer) const
 {
 	for (const ComponentPtr& currentComp : m_components)
 		if (currentComp->Enabled() && (currentComp->GetComponentType() & Components::COMPONENT_TYPE_RENDER))
@@ -194,7 +194,24 @@ void Core::GameObject::Draw() const
 			if (AsRenderComp == nullptr) R3DE_FATAL("Le composant n'herite pas de Components::IRenderComponent");
 			R3DE_ASSERT(AsRenderComp != nullptr);
 
-			AsRenderComp->Draw(this);
+			if ((p_layer & AsRenderComp->GetDrawLayer()) > 0u)
+				AsRenderComp->Draw(this);
+		}
+}
+
+void Core::GameObject::ProcessDrawLayer()
+{
+	m_DrawLayer = 0u;
+
+	for (const ComponentPtr& currentComp : m_components)
+		if (currentComp->Enabled() && (currentComp->GetComponentType() & Components::COMPONENT_TYPE_RENDER))
+		{
+			Components::IRenderComponent* AsRenderComp = CAST_RENDER_COMPONENT(currentComp);
+
+			if (AsRenderComp == nullptr) R3DE_FATAL("Le composant n'herite pas de Components::IRenderComponent");
+			R3DE_ASSERT(AsRenderComp != nullptr);
+
+			m_DrawLayer |= AsRenderComp->GetDrawLayer();
 		}
 }
 

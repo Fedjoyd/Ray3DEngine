@@ -98,6 +98,7 @@ namespace Components
 		virtual ~IRenderComponent() {}
 
 		virtual void Draw(const Core::GameObject* p_gameObject) = 0;
+		virtual uint64_t GetDrawLayer() const = 0;
 	private:
 	};
 

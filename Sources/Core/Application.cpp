@@ -32,7 +32,12 @@ void Core::Application::Update()
 
             m_singleton.m_CurrentSceneName = nextScene->GetName();
 
+#ifdef _EDITOR
+            if (m_singleton.m_run)
+                m_singleton.m_gameObjectManager.Start();
+#else
             m_singleton.m_gameObjectManager.Start();
+#endif // _EDITOR
         }
         else
             R3DE_ERROR("Scene %s does not exist !", m_singleton.m_nextSceneName.c_str());
@@ -55,25 +60,62 @@ void Core::Application::Update()
     m_singleton.m_time.Update();
     m_singleton.GetCamerasManager().Update();
 
+#ifdef _EDITOR
+    if (m_singleton.m_run)
+        m_singleton.m_gameObjectManager.Update();
+    else
+        m_singleton.m_gameObjectManager.EditorUpdate();
+
+    if (Time::Fixing() > 0)
+    {
+        if (m_singleton.m_run)
+            m_singleton.m_gameObjectManager.FixedUpdate();
+        else
+            m_singleton.m_gameObjectManager.EditorFixedUpdate();
+    }
+#else
     m_singleton.m_gameObjectManager.Update();
 
-    int FixedUpdateCount = Time::Fixing();
-    while (FixedUpdateCount > 0)
-    {
+    if (Time::Fixing() > 0)
         m_singleton.m_gameObjectManager.FixedUpdate();
-        FixedUpdateCount--;
+#endif // _EDITOR
+}
+
+void Core::Application::RenderCamera()
+{
+    std::vector<Components::Camera*>& lstCamera = m_singleton.m_camerasManager.GetListCamera();
+
+    for (std::vector<Components::Camera*>::iterator CameraIte = lstCamera.begin(); CameraIte != lstCamera.end(); CameraIte++)
+    {
+        if ((m_singleton.m_camerasManager.TestCurrentCamera(*CameraIte) && !((*CameraIte)->RenderCameraTexture())) || !((*CameraIte)->Enabled()))
+            continue;
+
+        BeginTextureMode((*CameraIte)->CameraTexture());
+        ClearBackground((*CameraIte)->BackgroundColor());
+        BeginMode3D((*CameraIte)->GetCameraData());
+
+        DrawCube(Vector3{ -2.5f, -2.5f, -2.5f }, 2.0f, 2.0f, 2.0f, RED);
+        DrawCubeWires(Vector3{ 2.5f, 2.5f, 2.5f }, 2.0f, 2.0f, 2.0f, MAROON);
+        DrawSphere(Vector3{ 0.f, 0.f, 0.f }, 1.f, RED);
+
+        m_singleton.m_gameObjectManager.Draw((*CameraIte)->DrawLayer());
+
+        EndMode3D();
+        EndTextureMode();
     }
 }
 
 void Core::Application::Draw()
 {
+    ClearBackground(m_singleton.m_camerasManager.GetBackgroundColor());
+
     BeginMode3D(m_singleton.m_camerasManager.GetCameraData());
 
-    //DrawCube(cubePosition, 2.0f, 2.0f, 2.0f, RED);
-    //DrawCubeWires(cubePosition, 2.0f, 2.0f, 2.0f, MAROON);
-    //DrawSphere(camera.target, 1.f, RED);
+    DrawCube(Vector3{ -2.5f, -2.5f, -2.5f }, 2.0f, 2.0f, 2.0f, RED);
+    DrawCubeWires(Vector3{ 2.5f, 2.5f, 2.5f }, 2.0f, 2.0f, 2.0f, MAROON);
+    DrawSphere(Vector3{0.f, 0.f, 0.f}, 1.f, RED);
 
-    m_singleton.m_gameObjectManager.Draw();
+    m_singleton.m_gameObjectManager.Draw(m_singleton.m_camerasManager.GetDrawLayer());
 
     DrawGrid(10, 1.0f);
 
@@ -110,6 +152,8 @@ void Core::Application::EditorWindows()
         if (ImGui::BeginMenu("Menu"))
         {
             ImGui::MenuItem("Game Fullscreen", NULL, &(m_singleton.m_fullscreenGame));
+            if (ImGui::MenuItem("Run", NULL, &(m_singleton.m_run)))
+                m_singleton.m_gameObjectManager.Start();
             ImGui::Separator();
             ImGui::MenuItem("Log", NULL, &(m_singleton.m_OpenLog));
             ImGui::MenuItem("Localisations Manager", NULL, &(m_singleton.m_OpenLocalisationsManager));

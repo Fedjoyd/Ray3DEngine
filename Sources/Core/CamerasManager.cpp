@@ -10,7 +10,7 @@ Core::CamerasManager::CamerasManager() :
 	m_CursorLock(false),
 	m_freeFlyData({ 0 }),
 #endif // _EDITOR
-	m_CurrentCamera(nullptr),
+	m_currentCamera(nullptr),
 	m_defaultFovY(45.0f),
 	m_defaultProjection(CAMERA_PERSPECTIVE)
 {
@@ -23,6 +23,36 @@ Core::CamerasManager::CamerasManager() :
 #endif // _EDITOR
 }
 
+bool Core::CamerasManager::AddCamera(Components::Camera* p_camera)
+{
+	if (p_camera == nullptr)
+		return false;
+
+	for (std::vector<Components::Camera*>::iterator CameraIte = m_listCamera.begin(); CameraIte != m_listCamera.end(); CameraIte++)
+		if ((*CameraIte) == p_camera)
+			return false;
+
+	m_listCamera.push_back(p_camera);
+	return true;
+}
+
+bool Core::CamerasManager::RemoveCamera(Components::Camera* p_camera)
+{
+	if (p_camera == nullptr)
+		return false;
+
+	for (std::vector<Components::Camera*>::iterator CameraIte = m_listCamera.begin(); CameraIte != m_listCamera.end(); CameraIte++)
+	{
+		if ((*CameraIte) != p_camera)
+			continue;
+
+		m_listCamera.erase(CameraIte);
+		return true;
+	}
+
+	return false;
+}
+
 void Core::CamerasManager::Update()
 {
 #ifdef _EDITOR
@@ -31,7 +61,7 @@ void Core::CamerasManager::Update()
 
 	ImGuiIO& currentIO = ImGui::GetIO();
 
-	if ((m_freeFly || m_CurrentCamera == nullptr) && !m_CursorLock && IsKeyPressed(KEY_TAB) && !currentIO.WantCaptureMouse)
+	if ((m_freeFly || m_currentCamera == nullptr) && !m_CursorLock && IsKeyPressed(KEY_TAB) && !currentIO.WantCaptureMouse)
 	{
 		DisableCursor();
 		m_CursorLock = true;
@@ -54,12 +84,12 @@ void Core::CamerasManager::Update()
 const Camera3D& Core::CamerasManager::GetCameraData() const
 {
 #ifdef _EDITOR
-	if (m_freeFly || m_CurrentCamera == nullptr)
+	if (m_freeFly || m_currentCamera == nullptr)
 		return m_freeFlyData;
 #endif // _EDITOR
 
-	if (m_CurrentCamera != nullptr)
-		return m_CurrentCamera->GetCameraData();
+	if (m_currentCamera != nullptr)
+		return m_currentCamera->GetCameraData();
 
 	return Default3DCam;
 }
@@ -67,5 +97,22 @@ const Camera3D& Core::CamerasManager::GetCameraData() const
 #ifdef _EDITOR
 void Core::CamerasManager::ShowEditorControl()
 {
+	if (!TestCurrentCamera(nullptr))
+		if (ImGui::Button("Deselect camera"))
+			SetCurrentCamera(nullptr);
+
+	static size_t IndexCamera = 0u;
+	IndexCamera = 0u;
+
+	for (std::vector<Components::Camera*>::iterator CameraIte = m_listCamera.begin(); CameraIte != m_listCamera.end(); CameraIte++)
+	{
+		if (TestCurrentCamera(*CameraIte))
+			ImGui::Text("X Camera %zu", IndexCamera);
+		else
+			if (ImGui::Selectable(("- Camera " + std::to_string(IndexCamera)).c_str()))
+				SetCurrentCamera(*CameraIte);
+
+		IndexCamera++;
+	}
 }
 #endif // _EDITOR

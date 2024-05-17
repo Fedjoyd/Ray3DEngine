@@ -120,17 +120,6 @@ int WinMain(void* hInstance, void* hPrevInstance, wchar_t* lpCmdLine, int nCmdSh
     Core::Application::SetLogger(&CurrentLogger);
 #endif
 
-    // Define the camera to look into our 3d world
-    Camera3D camera = { 0 };
-    camera.position = Vector3{ 0.0f, 10.0f, 10.0f };  // Camera position
-    camera.target = Vector3{ 0.0f, 0.0f, 0.0f };      // Camera looking at point
-    camera.up = Vector3{ 0.0f, 1.0f, 0.0f };          // Camera up vector (rotation towards target)
-    camera.fovy = 45.0f;                                // Camera field-of-view Y
-    camera.projection = CAMERA_PERSPECTIVE;             // Camera mode type
-
-    Vector3 cubePosition = { 0.0f, 0.0f, 0.0f };
-    std::string CameraTargetStr = "";
-
     //--------------------------------------------------------------------------------------
 
     R3DE_DEBUG("Test -> %d", 6621565);
@@ -150,53 +139,18 @@ int WinMain(void* hInstance, void* hPrevInstance, wchar_t* lpCmdLine, int nCmdSh
     {
         // Update
         //----------------------------------------------------------------------------------
-        // TODO: Update your variables here
-        //----------------------------------------------------------------------------------
-
-        /*if (IsKeyPressed(KEY_ESCAPE))
-            EnableCursor();
-        if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT))
-            DisableCursor();
-
-        if (IsKeyDown(KEY_UP))
-            cubePosition.z += GetFrameTime();
-        if (IsKeyDown(KEY_DOWN))
-            cubePosition.z -= GetFrameTime();
-        if (IsKeyDown(KEY_RIGHT))
-            cubePosition.x += GetFrameTime();
-        if (IsKeyDown(KEY_LEFT))
-            cubePosition.x -= GetFrameTime();
-        if (IsKeyDown(KEY_KP_ADD))
-            cubePosition.y += GetFrameTime();
-        if (IsKeyDown(KEY_KP_SUBTRACT))
-            cubePosition.y -= GetFrameTime();
-
-        UpdateCamera(&camera, CAMERA_FREE);
-
-        CameraTargetStr = "X = ";
-        CameraTargetStr += std::to_string(camera.target.x - camera.position.x);
-        CameraTargetStr += "(";
-        CameraTargetStr += std::to_string(camera.target.x);
-        CameraTargetStr += "), Y = ";
-        CameraTargetStr += std::to_string(camera.target.y - camera.position.y);
-        CameraTargetStr += "(";
-        CameraTargetStr += std::to_string(camera.target.y);
-        CameraTargetStr += "), Z = ";
-        CameraTargetStr += std::to_string(camera.target.z - camera.position.z);
-        CameraTargetStr += "(";
-        CameraTargetStr += std::to_string(camera.target.z);
-        CameraTargetStr += "), DistHeadTarget = ";
-        CameraTargetStr += std::to_string(Vector3Length(Vector3Subtract(camera.target, camera.position)));/**/
 
         Core::Application::Update();
 
         // Draw
         //----------------------------------------------------------------------------------
+
+        Core::Application::RenderCamera();
+
 #ifdef _EDITOR
         if (Core::Application::FullscreenGame())
         {
             BeginDrawing();
-            ClearBackground(Core::Application::BackgroundColor());
 
             Core::Application::Draw();
 
@@ -205,7 +159,6 @@ int WinMain(void* hInstance, void* hPrevInstance, wchar_t* lpCmdLine, int nCmdSh
         else
         {
             BeginTextureMode(Core::Application::GameRenderTexture());
-            ClearBackground(Core::Application::BackgroundColor());
 
             Core::Application::Draw();
 
@@ -220,12 +173,12 @@ int WinMain(void* hInstance, void* hPrevInstance, wchar_t* lpCmdLine, int nCmdSh
         }
 #else
         BeginDrawing();
-        ClearBackground(Core::Application::BackgroundColor());
 
         Core::Application::Draw();
 #endif // _EDITOR
 
         EndDrawing();
+
         //----------------------------------------------------------------------------------
     }
 

@@ -22,7 +22,7 @@ float Core::Time::FixedDeltaTime()
 
 int Core::Time::Fixing()
 {
-    return (Core::Application::GetTime().m_fixCount == 0 ? 1 : Core::Application::GetTime().m_fixCount);
+    return Core::Application::GetTime().m_fixCount;
 }
 
 

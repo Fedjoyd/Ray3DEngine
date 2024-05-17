@@ -16,7 +16,7 @@ namespace Core
 	class GameObject
 	{
 	public:
-		GameObject(const std::string& p_name) : m_name(p_name), m_deleteFlag(false), m_components() {}
+		GameObject(const std::string& p_name) : m_name(p_name), m_deleteFlag(false), m_components(), m_DrawLayer(0u) {}
 		~GameObject() {}
 
 		std::string& GetName() { return m_name; }
@@ -63,7 +63,10 @@ namespace Core
 
 		static void SetupGameObjectID(std::vector<std::unique_ptr<Core::GameObject>>& m_gameObjectsList);
 #endif // _EDITOR
-		void Draw() const;
+		void Draw(uint64_t p_layer = UINT64_MAX) const;
+		uint64_t GetDrawLayer() const { return m_DrawLayer; }
+		void ProcessDrawLayer();
+
 		void RegisterUiComponent(std::map<float, std::pair<const GameObject*, Components::IUIRenderComponent*>>& p_uiComponent) const;
 
 	private:
@@ -71,6 +74,8 @@ namespace Core
 		bool        m_deleteFlag;
 
 		std::vector<ComponentPtr> m_components;
+
+		uint64_t m_DrawLayer;
 
 #ifdef _EDITOR
 		unsigned int m_ID = 0u;

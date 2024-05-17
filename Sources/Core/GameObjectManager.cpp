@@ -149,10 +149,11 @@ void Core::GameObjectManager::ShowGameObjectInspector(size_t p_selectedGameObjec
 }
 #endif // _EDITOR
 
-void Core::GameObjectManager::Draw() const
+void Core::GameObjectManager::Draw(uint64_t p_layer) const
 {
 	for (const GameObjectPtr& CurrentGameObject : m_gameObjectsList)
-		CurrentGameObject->Draw();
+		if ((p_layer & CurrentGameObject->GetDrawLayer()) > 0)
+			CurrentGameObject->Draw(p_layer);
 }
 
 void Core::GameObjectManager::DrawUI() const

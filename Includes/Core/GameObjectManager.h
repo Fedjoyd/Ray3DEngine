@@ -41,7 +41,7 @@ namespace Core
 		void ShowEditorControl(ItemSelectionData& p_selectedItem);
 		void ShowGameObjectInspector(size_t p_selectedGameObject);
 #endif // _EDITOR
-		void Draw() const;
+		void Draw(uint64_t p_layer = UINT64_MAX) const;
 		void DrawUI() const;
 
 	private:

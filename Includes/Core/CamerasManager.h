@@ -27,8 +27,14 @@ namespace Core
 		CamerasManager();
 		~CamerasManager() {}
 
-		void SetCurrentCamera(Components::Camera* p_CurrentCamera = nullptr) { m_CurrentCamera = p_CurrentCamera; }
-		bool TestCurrentCamera(const Components::Camera* p_CurrentCamera) { return p_CurrentCamera == m_CurrentCamera; }
+		void SetCurrentCamera(Components::Camera* p_CurrentCamera = nullptr) { m_currentCamera = p_CurrentCamera; }
+		bool TestCurrentCamera(const Components::Camera* p_CurrentCamera) { return p_CurrentCamera == m_currentCamera; }
+
+		bool AddCamera(Components::Camera* p_camera);
+		bool RemoveCamera(Components::Camera* p_camera);
+
+		std::vector<Components::Camera*>& GetListCamera() { return m_listCamera; }
+		const std::vector<Components::Camera*>& GetListCamera() const { return m_listCamera; }
 
 #ifdef _EDITOR
 		void SetFreeFly(bool p_freeFly = true) { m_freeFly = p_freeFly; }
@@ -40,7 +46,10 @@ namespace Core
 		void Update();
 
 		const Camera3D& GetCameraData() const;
-		bool IsCursorLock() const { return (m_CurrentCamera == nullptr ? false : m_CurrentCamera->IsCursorLock()); }
+		Color GetBackgroundColor() const { return (m_currentCamera == nullptr ? RAYWHITE : m_currentCamera->BackgroundColor()); }
+		uint64_t GetDrawLayer() const {return (m_currentCamera == nullptr ? UINT64_MAX : m_currentCamera->DrawLayer()); }
+
+		bool IsCursorLock() const { return (m_currentCamera == nullptr ? false : m_currentCamera->IsCursorLock()); }
 
 	private:
 #ifdef _EDITOR
@@ -49,7 +58,8 @@ namespace Core
 		Camera3D m_freeFlyData;
 #endif // _EDITOR
 
-		Components::Camera* m_CurrentCamera;
+		Components::Camera* m_currentCamera;
+		std::vector<Components::Camera*> m_listCamera;
 
 		float m_defaultFovY;      // Camera field-of-view aperture in Y (degrees) in perspective, used as near plane width in orthographic
 		int m_defaultProjection;  // Camera projection: CAMERA_PERSPECTIVE or CAMERA_ORTHOGRAPHIC
