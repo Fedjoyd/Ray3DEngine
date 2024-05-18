@@ -20,6 +20,8 @@
 
 #include "Core/Application.h"
 
+#include "Components/Component/Transform.h"
+
 #include "Debug/Log.h"
 #define R3DE_CURRENT_FILE "Main.cpp"
 
@@ -130,6 +132,8 @@ int WinMain(void* hInstance, void* hPrevInstance, wchar_t* lpCmdLine, int nCmdSh
 
     REGISTER_COMPONENT_CREATOR(TestComponent);
     REGISTER_COMPONENT_CREATOR(Components::Camera);
+    REGISTER_COMPONENT_CREATOR(Components::Transform);
+    Components::Transform::InitUUIDGenerator();
 
     REGISTER_RESSOURCE_CREATOR(TestRessource);
     REGISTER_RESSOURCE_CREATOR(TestRessource2);

@@ -12,6 +12,7 @@
 #ifdef _EDITOR
 #include "imgui.h"
 #include "rlImGui.h"
+#include "ImGuizmo.h"
 #endif // _EDITOR
 
 #include "Debug/Log.h"

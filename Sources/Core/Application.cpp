@@ -135,6 +135,9 @@ void Core::Application::EditorWindows()
 
     rlImGuiBegin(); // start ImGui Conent
 
+    ImGuizmo::SetOrthographic(m_singleton.m_camerasManager.GetCameraData().projection == CAMERA_ORTHOGRAPHIC);
+    ImGuizmo::BeginFrame();
+
     if (m_singleton.m_fullscreenGame)
         ImGui::Begin("Editor Application", nullptr, ImGuiWindowFlags_MenuBar | ImGuiWindowFlags_NoTitleBar);
     else

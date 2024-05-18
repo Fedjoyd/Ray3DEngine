@@ -10,6 +10,8 @@ Ressources::RessourcesManager::RessourcesManager()
 	m_RessourceCreatorsName.insert(m_RessourceCreatorsName.begin(), "Add ressource ...");
 	m_RessourceCreatorsHash.insert(m_RessourceCreatorsHash.begin(), 0u);
 #endif // _EDITOR
+
+	m_UUIDGenerator.init(1, 1);
 }
 
 void Ressources::RessourcesManager::LoadProjectRessources(tinyxml2::XMLElement* p_XMLRessourceManager, bool p_dontLoadSceneList)
