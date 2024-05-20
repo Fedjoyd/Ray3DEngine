@@ -37,9 +37,9 @@ namespace Core
 
 		// ---- constant Component Getter ----
 		template <class T>
-		const T* GetComponent(const unsigned int indexComponent = 0u) const;
+		T* GetComponent(const unsigned int indexComponent = 0u) const;
 		template <class T>
-		bool TryGetComponent(const T** out_component, const unsigned int indexComponent = 0u) const;
+		bool TryGetComponent(T** out_component, const unsigned int indexComponent = 0u) const;
 		template <class T>
 		std::vector<const T*> GetAllComponents() const;
 
@@ -138,9 +138,9 @@ namespace Core
 	// ---- constant Component Getter ----
 
 	template<class T>
-	inline const T* GameObject::GetComponent(const unsigned int indexComponent) const
+	inline T* GameObject::GetComponent(const unsigned int indexComponent) const
 	{
-		const T* toReturnPtr = nullptr;
+		T* toReturnPtr = nullptr;
 		unsigned int currentComponent = 0;
 
 		for (unsigned int i = 0; i < m_components.size(); i++)
@@ -160,9 +160,9 @@ namespace Core
 	}
 
 	template<class T>
-	inline bool GameObject::TryGetComponent(const T** out_component, const unsigned int indexComponent) const
+	inline bool GameObject::TryGetComponent(T** out_component, const unsigned int indexComponent) const
 	{
-		const T* toTestReturn = GetComponent<T>(indexComponent);
+		T* toTestReturn = GetComponent<T>(indexComponent);
 
 		if (toTestReturn == nullptr)
 			return false;

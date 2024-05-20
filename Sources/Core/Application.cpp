@@ -32,6 +32,8 @@ void Core::Application::Update()
 
             m_singleton.m_CurrentSceneName = nextScene->GetName();
 
+            m_singleton.m_gameObjectManager.ProcessDrawLayer();
+
 #ifdef _EDITOR
             if (m_singleton.m_run)
                 m_singleton.m_gameObjectManager.Start();
@@ -90,6 +92,8 @@ void Core::Application::RenderCamera()
         if ((m_singleton.m_camerasManager.TestCurrentCamera(*CameraIte) && !((*CameraIte)->RenderCameraTexture())) || !((*CameraIte)->Enabled()))
             continue;
 
+        m_singleton.m_camerasManager.UseCamera(*CameraIte);
+
         BeginTextureMode((*CameraIte)->CameraTexture());
         ClearBackground((*CameraIte)->BackgroundColor());
         BeginMode3D((*CameraIte)->GetCameraData());
@@ -107,13 +111,15 @@ void Core::Application::RenderCamera()
 
 void Core::Application::Draw()
 {
+    m_singleton.m_camerasManager.UseCamera();
+
     ClearBackground(m_singleton.m_camerasManager.GetBackgroundColor());
 
     BeginMode3D(m_singleton.m_camerasManager.GetCameraData());
 
     DrawCube(Vector3{ -2.5f, -2.5f, -2.5f }, 2.0f, 2.0f, 2.0f, RED);
     DrawCubeWires(Vector3{ 2.5f, 2.5f, 2.5f }, 2.0f, 2.0f, 2.0f, MAROON);
-    DrawSphere(Vector3{0.f, 0.f, 0.f}, 1.f, RED);
+    //DrawSphere(Vector3{0.f, 0.f, 0.f}, 1.f, RED);
 
     m_singleton.m_gameObjectManager.Draw(m_singleton.m_camerasManager.GetDrawLayer());
 

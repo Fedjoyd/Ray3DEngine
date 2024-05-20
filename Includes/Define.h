@@ -12,10 +12,12 @@
 #define DEFAULT_WINDOW_WIDTH 800
 #define DEFAULT_WINDOW_HEIGHT 600
 
+#define DEFAULT_NEAR 0.001f
+#define DEFAULT_FAR 1000.f
+
 // -------------------------------
 
 #define DEFAULT_SCENE_PATH "Ressources/Scenes/"
-
 
 namespace Debug
 {

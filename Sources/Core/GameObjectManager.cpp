@@ -58,8 +58,8 @@ bool Core::GameObjectManager::SaveScene(ScenePtr& m_SceneToSave)
 
 void Core::GameObjectManager::Start()
 {
-    for (GameObjectPtr& CurrentGameObject : m_gameObjectsList)
-        CurrentGameObject->Start();
+	for (GameObjectPtr& CurrentGameObject : m_gameObjectsList)
+		CurrentGameObject->Start();
 }
 
 void Core::GameObjectManager::Update()
@@ -138,6 +138,11 @@ void Core::GameObjectManager::ShowEditorControl(ItemSelectionData& p_selectedIte
 
 	if (ImGui::Button("Add GameObject##GameObjectCreator"))
 		m_gameObjectsList.emplace_back(std::make_unique<GameObject>("GameObject"));
+
+	ImGui::SameLine();
+
+	if (ImGui::Button("Process Draw Layer##GameObjectCreator"))
+		ProcessDrawLayer();
 }
 
 void Core::GameObjectManager::ShowGameObjectInspector(size_t p_selectedGameObject)
@@ -154,6 +159,12 @@ void Core::GameObjectManager::Draw(uint64_t p_layer) const
 	for (const GameObjectPtr& CurrentGameObject : m_gameObjectsList)
 		if ((p_layer & CurrentGameObject->GetDrawLayer()) > 0)
 			CurrentGameObject->Draw(p_layer);
+}
+
+void Core::GameObjectManager::ProcessDrawLayer()
+{
+	for (GameObjectPtr& CurrentGameObjectToProcess : m_gameObjectsList)
+		CurrentGameObjectToProcess->ProcessDrawLayer();
 }
 
 void Core::GameObjectManager::DrawUI() const

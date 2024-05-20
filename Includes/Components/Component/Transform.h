@@ -11,6 +11,7 @@
 #include "tinyxml2.h"
 #include "Snowflake.hpp"
 #include "raylib.h"
+#include "raymath.h"
 
 #include "Components/IComponent.h"
 
@@ -32,6 +33,23 @@ namespace Components
 		void	AddChild(int64_t p_childId);
 		void	RemoveChild(int64_t p_childId);
 
+		Vector3&	Position() { m_update = true; return m_position; }
+		Quaternion&	Rotation() { m_update = true; return m_rotation; }
+		Vector3&	Scale() { m_update = true; return m_scale; }
+
+		const Vector3&		GetPosition() const { return m_position; }
+		const Quaternion&	GetRotation() const { return m_rotation; }
+		const Vector3&		GetScale() const { return m_scale; }
+
+		//void	SetPosition(Vector3 p_newPosition) { m_updatePhysicsOnUpdate = false; m_update = true; m_position = p_newPosition; }
+		//void	SetRotation(Quaternion p_newRotation) { m_updatePhysicsOnUpdate = false; m_update = true; m_rotation = p_newRotation; }
+		//void	SetScale(Vector3 p_newScale) { m_updatePhysicsOnUpdate = false; m_update = true; m_scale = p_newScale; }
+
+		Vector3			GetGlobalPosition() const;
+		Quaternion		GetGlobalRotation() const;
+		Vector3			GetGlobalScale() const;
+		const Matrix&	GetGlobalMatrix() const { return m_globalMatrix; }
+
 		// ---- Load/Save - Deserialize/Serialize ----
 
 		virtual void DeserializeComponent(tinyxml2::XMLElement* p_XMLComponent); // load Component from XML
@@ -39,6 +57,7 @@ namespace Components
 
 		// ---- Runtime/Editor methode ----
 
+		virtual void Start(Core::GameObject* p_gameObject) override;
 		virtual void FixedUpdate(Core::GameObject* p_gameObject) override;
 #ifdef _EDITOR
 		virtual void EditorFixedUpdate(Core::GameObject* p_gameObject) override;
@@ -59,9 +78,19 @@ namespace Components
 		Quaternion	m_rotation;
 		Vector3		m_scale;
 
-		bool m_update;
+		Matrix	m_localMatrix;
+		Matrix	m_globalMatrix;
+		bool	m_update;
 
 #ifdef _EDITOR
+		bool toTest = true;
+		Vector3 m_editorRotation = Vector3{ 0 };
+
+		Matrix m_currentGuizmoMatrix = MatrixIdentity();
+
+		void UpdateTransform(bool updateEditorRotation = true);
+#else
+		void UpdateTransform();
 #endif // _EDITOR
 
 		// ---- static global ----

@@ -42,6 +42,7 @@ namespace Core
 		void ShowGameObjectInspector(size_t p_selectedGameObject);
 #endif // _EDITOR
 		void Draw(uint64_t p_layer = UINT64_MAX) const;
+		void ProcessDrawLayer();
 		void DrawUI() const;
 
 	private:
