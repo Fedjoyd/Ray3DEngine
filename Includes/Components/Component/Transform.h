@@ -13,8 +13,6 @@
 #include "raylib.h"
 #include "raymath.h"
 
-#include "Type.h"
-
 #include "Components/IComponent.h"
 
 namespace Components
@@ -47,10 +45,14 @@ namespace Components
 		//void	SetRotation(Quaternion p_newRotation) { m_updatePhysicsOnUpdate = false; m_update = true; m_rotation = p_newRotation; }
 		//void	SetScale(Vector3 p_newScale) { m_updatePhysicsOnUpdate = false; m_update = true; m_scale = p_newScale; }
 
-		Vector3				GetGlobalPosition() const;
-		Quaternion			GetGlobalRotation() const;
-		Vector3				GetGlobalScale() const;
-		const R3DE_Matrix&	GetGlobalMatrix() const { return m_globalMatrix; }
+		Vector3	GetGlobalRight() const { return { m_globalMatrix.m0, m_globalMatrix.m1, m_globalMatrix.m2 }; }
+		Vector3	GetGlobalUp() const { return { m_globalMatrix.m4, m_globalMatrix.m5, m_globalMatrix.m6 }; }
+		Vector3	GetGlobalFoward() const { return { m_globalMatrix.m8, m_globalMatrix.m9, m_globalMatrix.m10 }; }
+		Vector3	GetGlobalPosition() const { return { m_globalMatrix.m12, m_globalMatrix.m13, m_globalMatrix.m14 }; }
+
+		Quaternion		GetGlobalRotation() const;
+		Vector3			GetGlobalScale() const;
+		const Matrix&	GetGlobalMatrix() const { return m_globalMatrix; }
 
 		// ---- Load/Save - Deserialize/Serialize ----
 
@@ -80,9 +82,9 @@ namespace Components
 		Quaternion	m_rotation;
 		Vector3		m_scale;
 
-		R3DE_Matrix	m_localMatrix;
-		R3DE_Matrix	m_globalMatrix;
-		bool		m_update;
+		Matrix	m_localMatrix;
+		Matrix	m_globalMatrix;
+		bool	m_update;
 
 		bool IsAlreadyParent(int64_t m_transID, int64_t p_parentIdToTest);
 

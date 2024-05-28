@@ -78,14 +78,9 @@ void Components::Transform::RemoveChild(int64_t p_childId)
 		}
 }
 
-Vector3 Components::Transform::GetGlobalPosition() const
-{
-	return m_globalMatrix.vec.position;
-}
-
 Quaternion Components::Transform::GetGlobalRotation() const
 {
-	return QuaternionFromMatrix(m_globalMatrix.mat);
+	return QuaternionFromMatrix(m_globalMatrix);
 
 	/*if (m_parentId != 0)
 		return QuaternionMultiply(listGlobalTransform[m_parentId]->GetGlobalRotation(), m_rotation);
@@ -270,10 +265,10 @@ void Components::Transform::UpdateTransform()
 	if (!m_update)
 		return;
 
-	m_localMatrix.mat = MatrixMultiply(MatrixScale(m_scale.x, m_scale.y, m_scale.z), MatrixMultiply(QuaternionToMatrix(m_rotation), MatrixTranslate(m_position.x, m_position.y, m_position.z)));
+	m_localMatrix = MatrixMultiply(MatrixScale(m_scale.x, m_scale.y, m_scale.z), MatrixMultiply(QuaternionToMatrix(m_rotation), MatrixTranslate(m_position.x, m_position.y, m_position.z)));
 
 	if (m_parentId != 0)
-		m_globalMatrix.mat = MatrixMultiply(m_localMatrix.mat, listGlobalTransform[m_parentId]->GetGlobalMatrix().mat);
+		m_globalMatrix = MatrixMultiply(m_localMatrix, listGlobalTransform[m_parentId]->GetGlobalMatrix());
 	else
 		m_globalMatrix = m_localMatrix;
 
@@ -335,7 +330,7 @@ void Components::Transform::ShowEditorControl(const unsigned int p_indexComponen
 		ImGui::SameLine();
 		if (ImGui::Button(("Remove parent##transform-" + std::to_string(p_indexComponent)).c_str()))
 		{
-			Matrix TranfByParent = m_globalMatrix.mat;
+			Matrix TranfByParent = m_globalMatrix;
 
 			SetParent(0);
 
@@ -386,7 +381,7 @@ void Components::Transform::ShowEditorControl(const unsigned int p_indexComponen
 			{
 				ImGui::CloseCurrentPopup();
 
-				Matrix TranfByParent = MatrixMultiply(MatrixInvert(listGlobalTransform[currenttransformSelection]->GetGlobalMatrix().mat), m_localMatrix.mat);
+				Matrix TranfByParent = MatrixMultiply(MatrixInvert(listGlobalTransform[currenttransformSelection]->GetGlobalMatrix()), m_localMatrix);
 
 				ImGuizmo::DecomposeMatrixToComponents((float*)&TranfByParent, (float*)&m_position, (float*)&m_editorRotation, (float*)&m_scale);
 
