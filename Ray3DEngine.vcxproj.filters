@@ -242,5 +242,8 @@
     <ClInclude Include="External\Includes\ImGuizmo.h">
       <Filter>Fichiers d%27en-tête\External</Filter>
     </ClInclude>
+    <ClInclude Include="Includes\Type.h">
+      <Filter>Fichiers d%27en-tête</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

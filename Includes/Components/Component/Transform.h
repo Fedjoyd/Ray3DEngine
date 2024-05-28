@@ -13,6 +13,8 @@
 #include "raylib.h"
 #include "raymath.h"
 
+#include "Type.h"
+
 #include "Components/IComponent.h"
 
 namespace Components
@@ -45,10 +47,10 @@ namespace Components
 		//void	SetRotation(Quaternion p_newRotation) { m_updatePhysicsOnUpdate = false; m_update = true; m_rotation = p_newRotation; }
 		//void	SetScale(Vector3 p_newScale) { m_updatePhysicsOnUpdate = false; m_update = true; m_scale = p_newScale; }
 
-		Vector3			GetGlobalPosition() const;
-		Quaternion		GetGlobalRotation() const;
-		Vector3			GetGlobalScale() const;
-		const Matrix&	GetGlobalMatrix() const { return m_globalMatrix; }
+		Vector3				GetGlobalPosition() const;
+		Quaternion			GetGlobalRotation() const;
+		Vector3				GetGlobalScale() const;
+		const R3DE_Matrix&	GetGlobalMatrix() const { return m_globalMatrix; }
 
 		// ---- Load/Save - Deserialize/Serialize ----
 
@@ -78,13 +80,16 @@ namespace Components
 		Quaternion	m_rotation;
 		Vector3		m_scale;
 
-		Matrix	m_localMatrix;
-		Matrix	m_globalMatrix;
-		bool	m_update;
+		R3DE_Matrix	m_localMatrix;
+		R3DE_Matrix	m_globalMatrix;
+		bool		m_update;
+
+		bool IsAlreadyParent(int64_t m_transID, int64_t p_parentIdToTest);
 
 #ifdef _EDITOR
 		bool toTest = true;
 		Vector3 m_editorRotation = Vector3{ 0 };
+		std::string m_transformName = "";
 
 		Matrix m_currentGuizmoMatrix = MatrixIdentity();
 

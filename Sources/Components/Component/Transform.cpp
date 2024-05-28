@@ -14,8 +14,8 @@ Components::Transform::Transform() :
 	m_position({ 0 }),
 	m_rotation(QuaternionIdentity()),
 	m_scale({ 1.f, 1.f, 1.f }),
-	m_localMatrix(MatrixIdentity()),
-	m_globalMatrix(MatrixIdentity()),
+	m_localMatrix({ MatrixIdentity() }),
+	m_globalMatrix({ MatrixIdentity() }),
 	m_update(true)
 {
 	while (listGlobalTransform.find(m_id) != listGlobalTransform.end())
@@ -39,7 +39,7 @@ Components::Transform::~Transform()
 
 void Components::Transform::SetParent(int64_t p_parentId, bool unsetParent)
 {
-	if (p_parentId == m_id)
+	if (IsAlreadyParent(m_id, p_parentId))
 	{
 		R3DE_ERROR("impossible to make transform parent to himself !!");
 		return;
@@ -80,22 +80,23 @@ void Components::Transform::RemoveChild(int64_t p_childId)
 
 Vector3 Components::Transform::GetGlobalPosition() const
 {
-	if (m_parentId != 0)
-		return Vector3Add(Vector3Multiply(Vector3RotateByQuaternion(m_position, listGlobalTransform[m_parentId]->GetGlobalRotation()), listGlobalTransform[m_parentId]->GetGlobalScale()), listGlobalTransform[m_parentId]->GetGlobalPosition());
-
-	return m_position;
+	return m_globalMatrix.vec.position;
 }
 
 Quaternion Components::Transform::GetGlobalRotation() const
 {
-	if (m_parentId != 0)
+	return QuaternionFromMatrix(m_globalMatrix.mat);
+
+	/*if (m_parentId != 0)
 		return QuaternionMultiply(listGlobalTransform[m_parentId]->GetGlobalRotation(), m_rotation);
 
-	return m_rotation;
+	return m_rotation;/**/
 }
 
 Vector3 Components::Transform::GetGlobalScale() const
 {
+	//return { Vector3Length(m_globalMatrix.vec.right), Vector3Length(m_globalMatrix.vec.up), Vector3Length(m_globalMatrix.vec.forward) };
+
 	if (m_parentId != 0)
 		return Vector3Multiply(listGlobalTransform[m_parentId]->GetGlobalScale(), m_scale);
 
@@ -240,19 +241,39 @@ void Components::Transform::FixedUpdate(Core::GameObject* p_gameObject)
 	UpdateTransform();
 }
 
+bool Components::Transform::IsAlreadyParent(int64_t m_transID, int64_t p_parentIdToTest)
+{
+	if (p_parentIdToTest == 0 || m_transID == 0)
+		return false;
+
+	int64_t currentParent = p_parentIdToTest;
+
+	while (currentParent != 0)
+	{
+		if (currentParent == m_transID)
+			return true;
+
+		currentParent = listGlobalTransform[currentParent]->GetParent();
+	}
+
+	return false;
+}
+
 #ifdef _EDITOR
 void Components::Transform::UpdateTransform(bool updateEditorRotation)
+{
 #else
 void Components::Transform::UpdateTransform()
-#endif // _EDITOR
 {
+#endif // _EDITOR
+
 	if (!m_update)
 		return;
 
-	m_localMatrix = MatrixMultiply(MatrixMultiply(MatrixTranslate(m_position.x, m_position.y, m_position.z), QuaternionToMatrix(m_rotation)), MatrixScale(m_scale.x, m_scale.y, m_scale.z));
+	m_localMatrix.mat = MatrixMultiply(MatrixScale(m_scale.x, m_scale.y, m_scale.z), MatrixMultiply(QuaternionToMatrix(m_rotation), MatrixTranslate(m_position.x, m_position.y, m_position.z)));
 
 	if (m_parentId != 0)
-		m_globalMatrix = MatrixMultiply(listGlobalTransform[m_parentId]->GetGlobalMatrix(), m_localMatrix);
+		m_globalMatrix.mat = MatrixMultiply(m_localMatrix.mat, listGlobalTransform[m_parentId]->GetGlobalMatrix().mat);
 	else
 		m_globalMatrix = m_localMatrix;
 
@@ -294,6 +315,8 @@ void Components::Transform::EditorFixedUpdate(Core::GameObject* p_gameObject)
 			indexChildId--;
 		}
 
+		m_transformName = p_gameObject->GetName() + "(TID : " + std::to_string(m_id) + ")";
+
 		toTest = false;
 	}
 
@@ -304,13 +327,15 @@ void Components::Transform::ShowEditorControl(const unsigned int p_indexComponen
 {
 	ImGuizmo::SetID((int)p_indexComponent);
 
+	ImGui::Text("Id : %lld", m_id);
+
 	if (m_parentId != 0)
 	{
 		ImGui::Text("Parent : %lld", m_parentId);
 		ImGui::SameLine();
 		if (ImGui::Button(("Remove parent##transform-" + std::to_string(p_indexComponent)).c_str()))
 		{
-			Matrix TranfByParent = m_globalMatrix;
+			Matrix TranfByParent = m_globalMatrix.mat;
 
 			SetParent(0);
 
@@ -344,7 +369,7 @@ void Components::Transform::ShowEditorControl(const unsigned int p_indexComponen
 				for (std::unordered_map<int64_t, Transform*>::iterator n = listGlobalTransform.begin(); n != listGlobalTransform.end(); n++)
 				{
 					const bool is_selected = ((*n).first == currenttransformSelection);
-					if (ImGui::Selectable(std::to_string((*n).first).c_str(), is_selected))
+					if (ImGui::Selectable((*n).second->m_transformName.c_str(), is_selected))
 						currenttransformSelection = (*n).first;
 
 					// Set the initial focus when opening the combo (scrolling + keyboard navigation focus)
@@ -361,7 +386,7 @@ void Components::Transform::ShowEditorControl(const unsigned int p_indexComponen
 			{
 				ImGui::CloseCurrentPopup();
 
-				Matrix TranfByParent = MatrixMultiply(MatrixInvert(listGlobalTransform[currenttransformSelection]->GetGlobalMatrix()), m_localMatrix);
+				Matrix TranfByParent = MatrixMultiply(MatrixInvert(listGlobalTransform[currenttransformSelection]->GetGlobalMatrix().mat), m_localMatrix.mat);
 
 				ImGuizmo::DecomposeMatrixToComponents((float*)&TranfByParent, (float*)&m_position, (float*)&m_editorRotation, (float*)&m_scale);
 
@@ -450,14 +475,17 @@ void Components::Transform::ShowEditorControl(const unsigned int p_indexComponen
 	ImGui::SameLine();
 	ImGui::Checkbox(("##scaleTypeTransform-" + std::to_string(p_indexComponent)).c_str(), &fullScaleModification);
 
-	Core::CamerasManager& CM = Core::Application::GetCamerasManager();
+	ImGuizmo::RecomposeMatrixFromComponents((float*)&m_position, (float*)&m_editorRotation, (float*)&m_scale, (float*)&m_currentGuizmoMatrix);
+	//m_currentGuizmoMatrix = m_globalMatrix;
 
-	//ImGuizmo::RecomposeMatrixFromComponents((float*)&m_position, (float*)&m_editorRotation, (float*)&m_scale, (float*)&mCurrentGuizmoMatrix);
-	m_currentGuizmoMatrix = GetGlobalMatrix();
+	Core::CamerasManager& CM = Core::Application::GetCamerasManager();
 
 	ImGuizmo::SetRect(0, 0, (float)GetRenderWidth(), (float)GetRenderHeight());
 
-	if (ImGuizmo::Manipulate(CM.GetViewMatrix(), CM.GetProjectionMatrix(), mCurrentGizmoOperation, ImGuizmo::MODE::WORLD, (float*)&m_currentGuizmoMatrix))
+	static Matrix CurrentViewMatrix = MatrixIdentity();
+	static Matrix CurrentProjectionMatrix = MatrixIdentity();
+
+	/*if (ImGuizmo::Manipulate((const float*)&CurrentViewMatrix, (const float*)&CurrentProjectionMatrix, mCurrentGizmoOperation, ImGuizmo::MODE::WORLD, (float*)&m_currentGuizmoMatrix))
 	{
 		//this->SetMatrixFromWorld(mCurrentGuizmoMatrix);
 		if (m_parentId != 0)
@@ -473,6 +501,6 @@ void Components::Transform::ShowEditorControl(const unsigned int p_indexComponen
 		//m_rotation = Quaternion::GetQuatFromEuler(m_editorRotation);
 
 		m_update = true;
-	}
+	}/**/
 }
 #endif // _EDITOR

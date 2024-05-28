@@ -35,10 +35,10 @@ void Core::Time::ShowEditorControl()
 
 void Core::Time::Update()
 {
-    m_fixCount = 0;
+    m_fixCount = 1;
 
     static float tempDeltaTime = 0.f;
-    tempDeltaTime = GetFrameTime();
+    tempDeltaTime = GetFrameTime() - m_fixedDeltaTime;
 
     while (tempDeltaTime > m_fixedDeltaTime)
     {

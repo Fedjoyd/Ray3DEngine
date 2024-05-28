@@ -262,6 +262,7 @@
     <ClInclude Include="Includes\Ressources\IRessource.h" />
     <ClInclude Include="Includes\Ressources\RessourcesManager.h" />
     <ClInclude Include="Includes\Ressources\Scene.h" />
+    <ClInclude Include="Includes\Type.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
