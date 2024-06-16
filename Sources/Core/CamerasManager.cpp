@@ -7,8 +7,8 @@
 const Camera3D Core::CamerasManager::Default3DCam = Camera3D{ Vector3{ 0.0f, 10.0f, 10.0f }, Vector3{ 0.0f, 0.0f, 0.0f }, Vector3{ 0.0f, 1.0f, 0.0f }, 45.0f, CAMERA_PERSPECTIVE };
 
 Core::CamerasManager::CamerasManager() :
+	m_mainCamera(nullptr),
 	m_currentCamera(nullptr),
-	m_renderedCamera(nullptr),
 	m_defaultFovY(45.0f),
 	m_defaultProjection(CAMERA_PERSPECTIVE)
 {
@@ -51,9 +51,55 @@ bool Core::CamerasManager::RemoveCamera(Components::Camera* p_camera)
 	return false;
 }
 
+void Core::CamerasManager::UseCamera(Components::Camera* p_cameraToUse)
+{
+	if (p_cameraToUse != nullptr)
+		m_currentCamera = p_cameraToUse;
+	else
+		m_currentCamera = m_mainCamera;
+
+	if (m_currentCamera != nullptr)
+	{
+		const Camera3D& CurentCameDat = m_currentCamera->GetCameraData();
+		const CameraSize& camSizeRef = m_currentCamera->CameraTextureSize();
+
+		//m_CurrentViewMatrix = MatrixLookAt(CurentCameDat.position, CurentCameDat.target, CurentCameDat.up);
+		m_CurrentViewMatrix = GetCameraMatrix(CurentCameDat);
+
+		if (CurentCameDat.projection == CAMERA_ORTHOGRAPHIC)
+			m_CurrentProjectionMatrix = MatrixOrtho(-(camSizeRef.Width / 2.f), (camSizeRef.Width / 2.f), -(camSizeRef.Height / 2.f), (camSizeRef.Height / 2.f), DEFAULT_NEAR, DEFAULT_FAR);
+		else
+			m_CurrentProjectionMatrix = MatrixPerspective(CurentCameDat.fovy, ((float)camSizeRef.Width / (float)camSizeRef.Height), DEFAULT_NEAR, DEFAULT_FAR);
+	}
+	else
+	{
+		CameraSize camSizeRef = { GetRenderWidth(), GetRenderHeight() };
+
+		//m_CurrentViewMatrix = MatrixLookAt(Default3DCam.position, Default3DCam.target, Default3DCam.up);
+		m_CurrentViewMatrix = GetCameraMatrix(Default3DCam);
+
+		if (Default3DCam.projection == CAMERA_ORTHOGRAPHIC)
+			m_CurrentProjectionMatrix = MatrixOrtho(-(camSizeRef.Width / 2.f), (camSizeRef.Width / 2.f), -(camSizeRef.Height / 2.f), (camSizeRef.Height / 2.f), DEFAULT_NEAR, DEFAULT_FAR);
+		else
+			m_CurrentProjectionMatrix = MatrixPerspective(Default3DCam.fovy, ((float)camSizeRef.Width / (float)camSizeRef.Height), DEFAULT_NEAR, DEFAULT_FAR);
+	}
+
+#ifdef _EDITOR
+	m_ImGuiViewMatrix[0] = m_CurrentViewMatrix.m0; m_ImGuiViewMatrix[1] = m_CurrentViewMatrix.m1; m_ImGuiViewMatrix[2] = m_CurrentViewMatrix.m2; m_ImGuiViewMatrix[3] = m_CurrentViewMatrix.m3;
+	m_ImGuiViewMatrix[4] = m_CurrentViewMatrix.m4; m_ImGuiViewMatrix[5] = m_CurrentViewMatrix.m5; m_ImGuiViewMatrix[6] = m_CurrentViewMatrix.m6; m_ImGuiViewMatrix[7] = m_CurrentViewMatrix.m7;
+	m_ImGuiViewMatrix[8] = m_CurrentViewMatrix.m8; m_ImGuiViewMatrix[9] = m_CurrentViewMatrix.m9; m_ImGuiViewMatrix[10] = m_CurrentViewMatrix.m10; m_ImGuiViewMatrix[11] = m_CurrentViewMatrix.m11;
+	m_ImGuiViewMatrix[12] = m_CurrentViewMatrix.m12; m_ImGuiViewMatrix[13] = m_CurrentViewMatrix.m13; m_ImGuiViewMatrix[14] = m_CurrentViewMatrix.m14; m_ImGuiViewMatrix[15] = m_CurrentViewMatrix.m15;
+
+	m_ImGuiProjectionMatrix[0] = m_CurrentProjectionMatrix.m0; m_ImGuiProjectionMatrix[1] = m_CurrentProjectionMatrix.m1; m_ImGuiProjectionMatrix[2] = m_CurrentProjectionMatrix.m2; m_ImGuiProjectionMatrix[3] = m_CurrentProjectionMatrix.m3;
+	m_ImGuiProjectionMatrix[4] = m_CurrentProjectionMatrix.m4; m_ImGuiProjectionMatrix[5] = m_CurrentProjectionMatrix.m5; m_ImGuiProjectionMatrix[6] = m_CurrentProjectionMatrix.m6; m_ImGuiProjectionMatrix[7] = m_CurrentProjectionMatrix.m7;
+	m_ImGuiProjectionMatrix[8] = m_CurrentProjectionMatrix.m8; m_ImGuiProjectionMatrix[9] = m_CurrentProjectionMatrix.m9; m_ImGuiProjectionMatrix[10] = m_CurrentProjectionMatrix.m10; m_ImGuiProjectionMatrix[11] = m_CurrentProjectionMatrix.m11;
+	m_ImGuiProjectionMatrix[12] = m_CurrentProjectionMatrix.m12; m_ImGuiProjectionMatrix[13] = m_CurrentProjectionMatrix.m13; m_ImGuiProjectionMatrix[14] = m_CurrentProjectionMatrix.m14; m_ImGuiProjectionMatrix[15] = m_CurrentProjectionMatrix.m15;
+#endif
+}
+
 Components::Camera* Core::CamerasManager::GetRenderedCamera()
 {
-	return Core::Application::GetCamerasManager().m_renderedCamera;
+	return Core::Application::GetCamerasManager().m_currentCamera;
 }
 
 void Core::CamerasManager::Update()
@@ -100,63 +146,22 @@ const Camera3D& Core::CamerasManager::GetCameraData() const
 #ifdef _EDITOR
 void Core::CamerasManager::ShowEditorControl()
 {
-	if (!TestCurrentCamera(nullptr))
+	if (!TestMainCamera(nullptr))
 		if (ImGui::Button("Deselect camera"))
-			SetCurrentCamera(nullptr);
+			SetMainCamera(nullptr);
 
 	static size_t IndexCamera = 0u;
 	IndexCamera = 0u;
 
 	for (std::vector<Components::Camera*>::iterator CameraIte = m_listCamera.begin(); CameraIte != m_listCamera.end(); CameraIte++)
 	{
-		if (TestCurrentCamera(*CameraIte))
+		if (TestMainCamera(*CameraIte))
 			ImGui::Text("X Camera %zu", IndexCamera);
 		else
 			if (ImGui::Selectable(("- Camera " + std::to_string(IndexCamera)).c_str()))
-				SetCurrentCamera(*CameraIte);
+				SetMainCamera(*CameraIte);
 
 		IndexCamera++;
 	}
-}
-
-const float* Core::CamerasManager::GetProjectionMatrix(bool p_forceUpdate)
-{
-	if (m_updatePojectionMatrix || p_forceUpdate)
-	{
-		float p_aspect = GetRenderWidth() / GetRenderHeight();
-		float top = DEFAULT_NEAR * tan((m_defaultFovY * DEG2RAD) / 2.f);
-
-		if (m_renderedCamera != nullptr)
-		{
-			p_aspect = m_renderedCamera->CameraTextureSize().Width / m_renderedCamera->CameraTextureSize().Height;
-			top = DEFAULT_NEAR * tan((m_renderedCamera->GetFovY() * DEG2RAD) / 2.f);
-		}
-		
-		float right = top * p_aspect;
-
-		if(m_renderedCamera != nullptr ? m_renderedCamera->GetCameraData().projection == CAMERA_PERSPECTIVE : true)
-			m_PojectionMatrix = MatrixFrustum(-right, right, -top, top, DEFAULT_NEAR, DEFAULT_FAR);
-		else
-			m_PojectionMatrix = MatrixOrtho(-right, right, -top, top, DEFAULT_NEAR, DEFAULT_FAR);
-
-		m_updatePojectionMatrix = false;
-	}
-
-	return (float*)&m_PojectionMatrix;
-}
-const float* Core::CamerasManager::GetViewMatrix(bool p_forceUpdate)
-{
-	if (m_updateViewMatrix || p_forceUpdate)
-	{
-		Camera3D& ToCreateViewMatFrom = m_freeFlyData;
-
-		if (m_renderedCamera != nullptr)
-			ToCreateViewMatFrom = m_renderedCamera->GetCameraData();
-
-		m_ViewMatrix = MatrixLookAt(ToCreateViewMatFrom.position, ToCreateViewMatFrom.target, ToCreateViewMatFrom.up);
-		m_updateViewMatrix = false;
-	}
-
-	return (float*)&m_ViewMatrix;
 }
 #endif // _EDITOR

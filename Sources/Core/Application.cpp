@@ -89,7 +89,7 @@ void Core::Application::RenderCamera()
 
     for (std::vector<Components::Camera*>::iterator CameraIte = lstCamera.begin(); CameraIte != lstCamera.end(); CameraIte++)
     {
-        if ((m_singleton.m_camerasManager.TestCurrentCamera(*CameraIte) && !((*CameraIte)->RenderCameraTexture())) || !((*CameraIte)->Enabled()))
+        if ((m_singleton.m_camerasManager.TestMainCamera(*CameraIte) && !((*CameraIte)->RenderCameraTexture())) || !((*CameraIte)->Enabled()))
             continue;
 
         m_singleton.m_camerasManager.UseCamera(*CameraIte);
@@ -145,7 +145,18 @@ void Core::Application::EditorWindows()
     ImGuizmo::BeginFrame();
 
     if (m_singleton.m_fullscreenGame)
+    {
         ImGui::Begin("Editor Application", nullptr, ImGuiWindowFlags_MenuBar | ImGuiWindowFlags_NoTitleBar);
+
+        if (m_singleton.m_fullscreenEditor)
+        {
+            m_singleton.m_fullscreenEditor = false;
+
+            const ImGuiViewport* viewport = ImGui::GetMainViewport();
+            ImGui::SetWindowPos({ viewport->Size.x / 1.7f, viewport->Size.y / 4.f });
+            ImGui::SetWindowSize({ viewport->Size.x / 2.5f, viewport->Size.y / 1.4f });
+        }
+    }
     else
     {
         ImGui::Begin("Editor Application", nullptr, ImGuiWindowFlags_MenuBar | ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoBringToFrontOnFocus);
@@ -153,6 +164,8 @@ void Core::Application::EditorWindows()
         const ImGuiViewport* viewport = ImGui::GetMainViewport();
         ImGui::SetWindowPos(viewport->Pos);
         ImGui::SetWindowSize(viewport->Size);
+
+        m_singleton.m_fullscreenEditor = true;
     }
 
     // Menu Bar

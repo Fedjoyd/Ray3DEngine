@@ -93,7 +93,8 @@ namespace Components
 		Vector3 m_editorRotation = Vector3{ 0 };
 		std::string m_transformName = "";
 
-		Matrix m_currentGuizmoMatrix = MatrixIdentity();
+		float m_currentGuizmoMatrix[16] = { 1.f, 0.f, 0.f, 0.f, 0.f, 1.f, 0.f, 0.f, 0.f, 0.f, 1.f, 0.f, 0.f, 0.f, 0.f, 1.f };
+		Matrix m_ProcessGuizmoMatrix = MatrixIdentity();
 
 		void UpdateTransform(bool updateEditorRotation = true);
 #else

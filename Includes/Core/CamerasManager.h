@@ -27,8 +27,8 @@ namespace Core
 		CamerasManager();
 		~CamerasManager() {}
 
-		void SetCurrentCamera(Components::Camera* p_currentCamera = nullptr) { m_currentCamera = p_currentCamera; }
-		bool TestCurrentCamera(const Components::Camera* p_currentCamera) { return p_currentCamera == m_currentCamera; }
+		void SetMainCamera(Components::Camera* p_currentCamera = nullptr) { m_mainCamera = p_currentCamera; if (m_mainCamera != nullptr) { m_mainCamera->UpdateToRenderSize(); } }
+		bool TestMainCamera(const Components::Camera* p_currentCamera) { return p_currentCamera == m_mainCamera; }
 
 		bool AddCamera(Components::Camera* p_camera);
 		bool RemoveCamera(Components::Camera* p_camera);
@@ -36,7 +36,7 @@ namespace Core
 		std::vector<Components::Camera*>& GetListCamera() { return m_listCamera; }
 		const std::vector<Components::Camera*>& GetListCamera() const { return m_listCamera; }
 
-		void UseCamera(Components::Camera* p_cameraToUse = nullptr) { m_updatePojectionMatrix = true; m_updateViewMatrix = true; if (p_cameraToUse == nullptr) { m_renderedCamera = m_currentCamera; return; } m_renderedCamera = p_cameraToUse; }
+		void UseCamera(Components::Camera* p_cameraToUse = nullptr);
 
 		static Components::Camera* GetRenderedCamera();
 
@@ -46,8 +46,8 @@ namespace Core
 
 		void ShowEditorControl();
 
-		const float* GetProjectionMatrix(bool p_forceUpdate = false);
-		const float* GetViewMatrix(bool p_forceUpdate = false);
+		const float* GetImGuiViewMatrix() { return m_ImGuiViewMatrix; }
+		const float* GetImGuiProjectionMatrix() { return m_ImGuiProjectionMatrix; }
 #endif // _EDITOR
 
 		void Update();
@@ -55,6 +55,8 @@ namespace Core
 		const Camera3D& GetCameraData() const;
 		Color GetBackgroundColor() const { return (m_currentCamera == nullptr ? RAYWHITE : m_currentCamera->BackgroundColor()); }
 		uint64_t GetDrawLayer() const {return (m_currentCamera == nullptr ? UINT64_MAX : m_currentCamera->DrawLayer()); }
+		const Matrix& GetViewMatrix() const { return m_CurrentViewMatrix; }
+		const Matrix& GetProjectionMatrix() const { return m_CurrentProjectionMatrix; }
 
 		bool IsCursorLock() const { return (m_currentCamera == nullptr ? false : m_currentCamera->IsCursorLock()); }
 
@@ -64,15 +66,15 @@ namespace Core
 		bool m_CursorLock = false;
 		Camera3D m_freeFlyData = { 0 };
 
-		bool m_updatePojectionMatrix = true;
-		Matrix m_PojectionMatrix = MatrixIdentity();
-
-		bool m_updateViewMatrix = true;
-		Matrix m_ViewMatrix = MatrixIdentity();
+		float m_ImGuiViewMatrix[16] = { 1.f, 0.f, 0.f, 0.f, 0.f, 1.f, 0.f, 0.f, 0.f, 0.f, 1.f, 0.f, 0.f, 0.f, 0.f, 1.f };
+		float m_ImGuiProjectionMatrix[16] = { 1.f, 0.f, 0.f, 0.f, 0.f, 1.f, 0.f, 0.f, 0.f, 0.f, 1.f, 0.f, 0.f, 0.f, 0.f, 1.f };
 #endif // _EDITOR
 
+		Matrix m_CurrentViewMatrix;
+		Matrix m_CurrentProjectionMatrix;
+
+		Components::Camera* m_mainCamera;
 		Components::Camera* m_currentCamera;
-		Components::Camera* m_renderedCamera;
 		std::vector<Components::Camera*> m_listCamera;
 
 		float m_defaultFovY;      // Camera field-of-view aperture in Y (degrees) in perspective, used as near plane width in orthographic

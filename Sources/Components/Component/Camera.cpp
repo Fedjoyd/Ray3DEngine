@@ -1,25 +1,26 @@
 #include "Components/Component/Camera.h"
 
 #include "Core/Application.h"
+#include "Components/Component/Transform.h"
 
-Components::Camera::Camera() : m_cameraData({ 0 }), m_cursorLock(false), m_indexTransform(0u), m_ColorBackground(RAYWHITE), m_size({10, 10}), m_RenderCameraTexture(false), m_CameraTexture({0}), m_drawLayer(UINT64_MAX)
+Components::Camera::Camera() : m_cameraData({ 0 }), m_forwardVector({ 0 }), m_rightVector({0}), m_cursorLock(false), m_indexTransform(0u), m_colorBackground(RAYWHITE), m_cameraTextureSize({10, 10}), m_renderCameraTexture(false), m_cameraTexture({0}), m_drawLayer(UINT64_MAX)
 {
 	Core::Application::GetCamerasManager().AddCamera(this);
-	
+
 	m_cameraData.up.y = 1.f;
 	m_cameraData.fovy = 45.f;
 
-	m_CameraTexture = LoadRenderTexture(m_size.Width, m_size.Height);
+	m_cameraTexture = LoadRenderTexture(m_cameraTextureSize.Width, m_cameraTextureSize.Height);
 }
 
 Components::Camera::~Camera()
 {
 	Core::Application::GetCamerasManager().RemoveCamera(this);
 
-	if (Core::Application::GetCamerasManager().TestCurrentCamera(this))
-		Core::Application::GetCamerasManager().SetCurrentCamera();
+	if (Core::Application::GetCamerasManager().TestMainCamera(this))
+		Core::Application::GetCamerasManager().SetMainCamera();
 
-	UnloadRenderTexture(m_CameraTexture);
+	UnloadRenderTexture(m_cameraTexture);
 }
 
 void Components::Camera::DeserializeComponent(tinyxml2::XMLElement* p_XMLComponent)
@@ -32,24 +33,41 @@ void Components::Camera::SerializeComponent(tinyxml2::XMLElement* p_XMLComponent
 	IComponent::SerializeComponent(p_XMLComponent);
 }
 
-void Components::Camera::SetCurrentCamera()
-{
-	Core::Application::GetCamerasManager().SetCurrentCamera(this);
-}
-
 void Components::Camera::Start(Core::GameObject* p_gameObject)
 {
 }
 
 void Components::Camera::Update(Core::GameObject* p_gameObject)
 {
-
-
-	if (m_CameraTexture.texture.width != m_size.Width || m_CameraTexture.texture.height != m_size.Height)
+	static Components::Transform* CurrentPositionTransform = nullptr;
+	if (p_gameObject->TryGetComponent(&CurrentPositionTransform, m_indexTransform))
 	{
-		UnloadRenderTexture(m_CameraTexture);
-		m_CameraTexture = LoadRenderTexture(m_size.Width, m_size.Height);
+		m_cameraData.position = CurrentPositionTransform->GetGlobalPosition();
+
+		m_rightVector = CurrentPositionTransform->GetGlobalRight();
+		m_forwardVector = CurrentPositionTransform->GetGlobalFoward();
+		m_cameraData.up = CurrentPositionTransform->GetGlobalUp();
+
+		m_cameraData.target = Vector3Add(m_cameraData.position, m_forwardVector);
 	}
+
+	if (Core::Application::GetCamerasManager().TestMainCamera(this))
+	{
+		if (IsWindowResized())
+			m_cameraTextureSize = { GetRenderWidth(), GetRenderHeight() };
+
+		if (m_renderCameraTexture && (m_cameraTexture.texture.width != m_cameraTextureSize.Width || m_cameraTexture.texture.height != m_cameraTextureSize.Height))
+		{
+			UnloadRenderTexture(m_cameraTexture);
+			m_cameraTexture = LoadRenderTexture(m_cameraTextureSize.Width, m_cameraTextureSize.Height);
+		}
+	}
+	else
+		if (m_cameraTexture.texture.width != m_cameraTextureSize.Width || m_cameraTexture.texture.height != m_cameraTextureSize.Height)
+		{
+			UnloadRenderTexture(m_cameraTexture);
+			m_cameraTexture = LoadRenderTexture(m_cameraTextureSize.Width, m_cameraTextureSize.Height);
+		}
 }
 
 #ifdef _EDITOR
@@ -62,15 +80,15 @@ void Components::Camera::ShowEditorControl(const unsigned int p_indexComponent)
 {
 	ImGui::SameLine();
 
-	if (Core::Application::GetCamerasManager().TestCurrentCamera(this))
+	if (Core::Application::GetCamerasManager().TestMainCamera(this))
 	{
 		if (ImGui::Button(("Deselect##camera" + std::to_string(p_indexComponent)).c_str()))
-			Core::Application::GetCamerasManager().SetCurrentCamera();
+			Core::Application::GetCamerasManager().SetMainCamera();
 	}
 	else
 	{
 		if (ImGui::Button(("Select##camera" + std::to_string(p_indexComponent)).c_str()))
-			Core::Application::GetCamerasManager().SetCurrentCamera(this);
+			Core::Application::GetCamerasManager().SetMainCamera(this);
 	}
 
 	ImGui::Spacing();
@@ -88,9 +106,9 @@ void Components::Camera::ShowEditorControl(const unsigned int p_indexComponent)
 
 	ImGui::Spacing();
 
-	ImGui::InputInt2(("Size##camera" + std::to_string(p_indexComponent)).c_str(), (int*)&m_size);
-	ImGui::Checkbox(("Allways render texture##camera" + std::to_string(p_indexComponent)).c_str(), &m_RenderCameraTexture);
+	ImGui::InputInt2(("Size##camera" + std::to_string(p_indexComponent)).c_str(), (int*)&m_cameraTextureSize);
+	ImGui::Checkbox(("Allways render texture##camera" + std::to_string(p_indexComponent)).c_str(), &m_renderCameraTexture);
 
-	rlImGuiImageRenderTexture(&m_CameraTexture);
+	rlImGuiImageRenderTexture(&m_cameraTexture);
 }
 #endif // _EDITOR

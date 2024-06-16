@@ -50,6 +50,7 @@ void Components::Transform::SetParent(int64_t p_parentId, bool unsetParent)
 			listGlobalTransform[m_parentId]->RemoveChild(m_id);
 
 	m_parentId = p_parentId;
+	m_update = true;
 
 	if (m_parentId != 0)
 	{
@@ -281,6 +282,11 @@ void Components::Transform::UpdateTransform()
 #ifdef _EDITOR
 	if (updateEditorRotation)
 		m_editorRotation = QuaternionToEuler(m_rotation);
+
+	m_currentGuizmoMatrix[0] = m_globalMatrix.m0; m_currentGuizmoMatrix[1] = m_globalMatrix.m1; m_currentGuizmoMatrix[2] = m_globalMatrix.m2; m_currentGuizmoMatrix[3] = m_globalMatrix.m3;
+	m_currentGuizmoMatrix[4] = m_globalMatrix.m4; m_currentGuizmoMatrix[5] = m_globalMatrix.m5; m_currentGuizmoMatrix[6] = m_globalMatrix.m6; m_currentGuizmoMatrix[7] = m_globalMatrix.m7;
+	m_currentGuizmoMatrix[8] = m_globalMatrix.m8; m_currentGuizmoMatrix[9] = m_globalMatrix.m9; m_currentGuizmoMatrix[10] = m_globalMatrix.m10; m_currentGuizmoMatrix[11] = m_globalMatrix.m11;
+	m_currentGuizmoMatrix[12] = m_globalMatrix.m12; m_currentGuizmoMatrix[13] = m_globalMatrix.m13; m_currentGuizmoMatrix[14] = m_globalMatrix.m14; m_currentGuizmoMatrix[15] = m_globalMatrix.m15;
 #endif // _EDITOR
 
 	m_update = false;
@@ -322,29 +328,30 @@ void Components::Transform::ShowEditorControl(const unsigned int p_indexComponen
 {
 	ImGuizmo::SetID((int)p_indexComponent);
 
+	ImGui::Text("Name :");
+	ImGui::SameLine();
+	ImGui::InputText(("##transName_transform-" + std::to_string(p_indexComponent)).c_str(), &m_transformName);
+	ImGui::SetItemTooltip("For tracking purposes only");
+
 	ImGui::Text("Id : %lld", m_id);
 
 	if (m_parentId != 0)
 	{
 		ImGui::Text("Parent : %lld", m_parentId);
 		ImGui::SameLine();
-		if (ImGui::Button(("Remove parent##transform-" + std::to_string(p_indexComponent)).c_str()))
+		if (ImGui::Button(("X##transform-" + std::to_string(p_indexComponent)).c_str()))
 		{
-			Matrix TranfByParent = m_globalMatrix;
+			m_position = GetGlobalPosition();
+			m_rotation = GetGlobalRotation();
+			Vector3 tempScale = GetGlobalScale();
 
 			SetParent(0);
 
-			ImGuizmo::DecomposeMatrixToComponents((float*)&TranfByParent, (float*)&m_position, (float*)&m_editorRotation, (float*)&m_scale);
-
-			m_editorRotation.x = fmodf((m_editorRotation.x + (2 * PI)) + PI, (2 * PI)) - PI; // Loop around -180,180
-			m_editorRotation.y = fmodf((m_editorRotation.y + (2 * PI)) + PI, (2 * PI)) - PI; // Loop around -180,180
-			m_editorRotation.z = fmodf((m_editorRotation.z + (2 * PI)) + PI, (2 * PI)) - PI; // Loop around -180,180
-
-			m_rotation = QuaternionFromEuler(m_editorRotation.x, m_editorRotation.y, m_editorRotation.z);
-			//m_rotation = Quaternion::GetQuatFromEuler(m_editorRotation);
-
-			m_update = true;
+			m_scale = tempScale;
 		}
+		ImGui::SameLine();
+		if (ImGui::Button(("X (keep value)##transform-" + std::to_string(p_indexComponent)).c_str()))
+			SetParent(0);
 	}
 	else
 	{
@@ -381,18 +388,37 @@ void Components::Transform::ShowEditorControl(const unsigned int p_indexComponen
 			{
 				ImGui::CloseCurrentPopup();
 
-				Matrix TranfByParent = MatrixMultiply(MatrixInvert(listGlobalTransform[currenttransformSelection]->GetGlobalMatrix()), m_localMatrix);
+				Matrix TranfByParent = MatrixMultiply(m_localMatrix, MatrixInvert(listGlobalTransform[currenttransformSelection]->GetGlobalMatrix()));
 
-				ImGuizmo::DecomposeMatrixToComponents((float*)&TranfByParent, (float*)&m_position, (float*)&m_editorRotation, (float*)&m_scale);
+				m_position = { TranfByParent.m12, TranfByParent.m13, TranfByParent.m14 };
 
-				m_editorRotation.x = fmodf((m_editorRotation.x + (2 * PI)) + PI, (2 * PI)) - PI; // Loop around -180,180
-				m_editorRotation.y = fmodf((m_editorRotation.y + (2 * PI)) + PI, (2 * PI)) - PI; // Loop around -180,180
-				m_editorRotation.z = fmodf((m_editorRotation.z + (2 * PI)) + PI, (2 * PI)) - PI; // Loop around -180,180
+				m_scale = {
+					Vector3Length({ TranfByParent.m0, TranfByParent.m1, TranfByParent.m2 }),
+					Vector3Length({ TranfByParent.m4, TranfByParent.m5, TranfByParent.m6 }),
+					Vector3Length({ TranfByParent.m8, TranfByParent.m9, TranfByParent.m10 })
+				};
 
-				m_rotation = QuaternionFromEuler(m_editorRotation.x, m_editorRotation.y, m_editorRotation.z);
-				//m_rotation = Quaternion::GetQuatFromEuler(m_editorRotation);
+				TranfByParent.m0 = TranfByParent.m0 / m_scale.x; TranfByParent.m1 = TranfByParent.m1 / m_scale.x; TranfByParent.m2 = TranfByParent.m2 / m_scale.x;
+				TranfByParent.m4 = TranfByParent.m4 / m_scale.y; TranfByParent.m5 = TranfByParent.m5 / m_scale.y; TranfByParent.m6 = TranfByParent.m6 / m_scale.y;
+				TranfByParent.m8 = TranfByParent.m8 / m_scale.z; TranfByParent.m9 = TranfByParent.m9 / m_scale.z; TranfByParent.m10 = TranfByParent.m10 / m_scale.z;
 
-				m_update = true;
+				m_rotation = QuaternionFromMatrix(TranfByParent);
+
+				//float TranfByParentAsFloat[16] = {
+				//	TranfByParent.m0,	TranfByParent.m1,	TranfByParent.m2,	TranfByParent.m3,
+				//	TranfByParent.m4,	TranfByParent.m5,	TranfByParent.m6,	TranfByParent.m7,
+				//	TranfByParent.m8,	TranfByParent.m9,	TranfByParent.m10,	TranfByParent.m11,
+				//	TranfByParent.m12,	TranfByParent.m13,	TranfByParent.m14,	TranfByParent.m15
+				//};
+
+				//ImGuizmo::DecomposeMatrixToComponents((float*)TranfByParentAsFloat, (float*)&m_position, (float*)&m_editorRotation, (float*)&m_scale);
+
+				//m_editorRotation.x = fmodf((m_editorRotation.x + (2 * PI)) + PI, (2 * PI)) - PI; // Loop around -180,180
+				//m_editorRotation.y = fmodf((m_editorRotation.y + (2 * PI)) + PI, (2 * PI)) - PI; // Loop around -180,180
+				//m_editorRotation.z = fmodf((m_editorRotation.z + (2 * PI)) + PI, (2 * PI)) - PI; // Loop around -180,180
+
+				//m_rotation = QuaternionFromEuler(m_editorRotation.x, m_editorRotation.y, m_editorRotation.z);
+				////m_rotation = Quaternion::GetQuatFromEuler(m_editorRotation);
 
 				SetParent(currenttransformSelection);
 			}
@@ -401,7 +427,7 @@ void Components::Transform::ShowEditorControl(const unsigned int p_indexComponen
 			if (ImGui::Button("OK (keep value)", ImVec2(140, 0)))
 			{
 				ImGui::CloseCurrentPopup();
-				m_update = true;
+
 				SetParent(currenttransformSelection);
 			}
 
@@ -445,6 +471,7 @@ void Components::Transform::ShowEditorControl(const unsigned int p_indexComponen
 			//m_rotation = Quaternion::GetQuatFromEuler(m_editorRotation);
 
 			m_update = true;
+			UpdateTransform(false);
 		}
 	}
 
@@ -470,32 +497,65 @@ void Components::Transform::ShowEditorControl(const unsigned int p_indexComponen
 	ImGui::SameLine();
 	ImGui::Checkbox(("##scaleTypeTransform-" + std::to_string(p_indexComponent)).c_str(), &fullScaleModification);
 
-	ImGuizmo::RecomposeMatrixFromComponents((float*)&m_position, (float*)&m_editorRotation, (float*)&m_scale, (float*)&m_currentGuizmoMatrix);
-	//m_currentGuizmoMatrix = m_globalMatrix;
-
-	Core::CamerasManager& CM = Core::Application::GetCamerasManager();
-
-	ImGuizmo::SetRect(0, 0, (float)GetRenderWidth(), (float)GetRenderHeight());
-
-	static Matrix CurrentViewMatrix = MatrixIdentity();
-	static Matrix CurrentProjectionMatrix = MatrixIdentity();
-
-	/*if (ImGuizmo::Manipulate((const float*)&CurrentViewMatrix, (const float*)&CurrentProjectionMatrix, mCurrentGizmoOperation, ImGuizmo::MODE::WORLD, (float*)&m_currentGuizmoMatrix))
+	if (Core::Application::FullscreenGame())
 	{
-		//this->SetMatrixFromWorld(mCurrentGuizmoMatrix);
-		if (m_parentId != 0)
-			m_currentGuizmoMatrix = MatrixMultiply(MatrixInvert(listGlobalTransform[m_parentId]->GetGlobalMatrix()), m_currentGuizmoMatrix);
+		/*static Vector3 tempPosition = {0.f, 0.f, 0.f};
+		static Vector3 tempDegreeRotation = { 0.f, 0.f, 0.f };
+		static Vector3 tempScale = { 0.f, 0.f, 0.f };
 
-		ImGuizmo::DecomposeMatrixToComponents((float*)&m_currentGuizmoMatrix, (float*)&m_position, (float*)&m_editorRotation, (float*)&m_scale);
+		tempPosition = GetGlobalPosition();
+		tempDegreeRotation = Vector3Scale(QuaternionToEuler(GetGlobalRotation()), RAD2DEG);
+		tempScale = GetGlobalScale();
 
-		m_editorRotation.x = fmodf((m_editorRotation.x + (2 * PI)) + PI, (2 * PI)) - PI; // Loop around -180,180
-		m_editorRotation.y = fmodf((m_editorRotation.y + (2 * PI)) + PI, (2 * PI)) - PI; // Loop around -180,180
-		m_editorRotation.z = fmodf((m_editorRotation.z + (2 * PI)) + PI, (2 * PI)) - PI; // Loop around -180,180
+		ImGuizmo::RecomposeMatrixFromComponents((float*)&tempPosition, (float*)&tempDegreeRotation, (float*)&tempScale, (float*)&m_currentGuizmoMatrix);*/
+		//m_currentGuizmoMatrix = m_globalMatrix;
 
-		m_rotation = QuaternionFromEuler(m_editorRotation.x, m_editorRotation.y, m_editorRotation.z);
-		//m_rotation = Quaternion::GetQuatFromEuler(m_editorRotation);
+		//m_currentGuizmoMatrix[0] = m_globalMatrix.m0; m_currentGuizmoMatrix[1] = m_globalMatrix.m1; m_currentGuizmoMatrix[2] = m_globalMatrix.m2; m_currentGuizmoMatrix[3] = m_globalMatrix.m3;
+		//m_currentGuizmoMatrix[4] = m_globalMatrix.m4; m_currentGuizmoMatrix[5] = m_globalMatrix.m5; m_currentGuizmoMatrix[6] = m_globalMatrix.m6; m_currentGuizmoMatrix[7] = m_globalMatrix.m7;
+		//m_currentGuizmoMatrix[8] = m_globalMatrix.m8; m_currentGuizmoMatrix[9] = m_globalMatrix.m9; m_currentGuizmoMatrix[10] = m_globalMatrix.m10; m_currentGuizmoMatrix[11] = m_globalMatrix.m11;
+		//m_currentGuizmoMatrix[12] = m_globalMatrix.m12; m_currentGuizmoMatrix[13] = m_globalMatrix.m13; m_currentGuizmoMatrix[14] = m_globalMatrix.m14; m_currentGuizmoMatrix[15] = m_globalMatrix.m15;
 
-		m_update = true;
-	}/**/
+		Core::CamerasManager& CM = Core::Application::GetCamerasManager();
+
+		ImGuizmo::SetOrthographic(CM.GetCameraData().projection == CAMERA_ORTHOGRAPHIC);
+		ImGuizmo::SetRect(0.f, 0.f, (float)GetRenderWidth(), (float)GetRenderHeight());
+		//ImGuizmo::SetRect(100.f, 100.f, (float)GetRenderWidth() - 200.f, (float)GetRenderHeight() - 200.f);
+
+		if (ImGuizmo::Manipulate(CM.GetImGuiViewMatrix(), CM.GetImGuiProjectionMatrix(), mCurrentGizmoOperation, ImGuizmo::MODE::WORLD, (float*)&m_currentGuizmoMatrix))
+		{
+			m_ProcessGuizmoMatrix.m0 = m_currentGuizmoMatrix[0]; m_ProcessGuizmoMatrix.m1 = m_currentGuizmoMatrix[1]; m_ProcessGuizmoMatrix.m2 = m_currentGuizmoMatrix[2]; m_ProcessGuizmoMatrix.m3 = m_currentGuizmoMatrix[3];
+			m_ProcessGuizmoMatrix.m4 = m_currentGuizmoMatrix[4]; m_ProcessGuizmoMatrix.m5 = m_currentGuizmoMatrix[5]; m_ProcessGuizmoMatrix.m6 = m_currentGuizmoMatrix[6]; m_ProcessGuizmoMatrix.m7 = m_currentGuizmoMatrix[7];
+			m_ProcessGuizmoMatrix.m8 = m_currentGuizmoMatrix[8]; m_ProcessGuizmoMatrix.m9 = m_currentGuizmoMatrix[9]; m_ProcessGuizmoMatrix.m10 = m_currentGuizmoMatrix[10]; m_ProcessGuizmoMatrix.m11 = m_currentGuizmoMatrix[11];
+			m_ProcessGuizmoMatrix.m12 = m_currentGuizmoMatrix[12]; m_ProcessGuizmoMatrix.m13 = m_currentGuizmoMatrix[13]; m_ProcessGuizmoMatrix.m14 = m_currentGuizmoMatrix[14]; m_ProcessGuizmoMatrix.m15 = m_currentGuizmoMatrix[15];
+
+			if (m_parentId != 0)
+				m_ProcessGuizmoMatrix = MatrixMultiply(m_ProcessGuizmoMatrix, MatrixInvert(listGlobalTransform[m_parentId]->GetGlobalMatrix()));
+
+			m_position = { m_ProcessGuizmoMatrix.m12, m_ProcessGuizmoMatrix.m13, m_ProcessGuizmoMatrix.m14 };
+
+			m_scale = {
+				Vector3Length({ m_ProcessGuizmoMatrix.m0, m_ProcessGuizmoMatrix.m1, m_ProcessGuizmoMatrix.m2 }),
+				Vector3Length({ m_ProcessGuizmoMatrix.m4, m_ProcessGuizmoMatrix.m5, m_ProcessGuizmoMatrix.m6 }),
+				Vector3Length({ m_ProcessGuizmoMatrix.m8, m_ProcessGuizmoMatrix.m9, m_ProcessGuizmoMatrix.m10 })
+			};
+			
+			m_ProcessGuizmoMatrix.m0 = m_ProcessGuizmoMatrix.m0 / m_scale.x; m_ProcessGuizmoMatrix.m1 = m_ProcessGuizmoMatrix.m1 / m_scale.x; m_ProcessGuizmoMatrix.m2 = m_ProcessGuizmoMatrix.m2 / m_scale.x;
+			m_ProcessGuizmoMatrix.m4 = m_ProcessGuizmoMatrix.m4 / m_scale.y; m_ProcessGuizmoMatrix.m5 = m_ProcessGuizmoMatrix.m5 / m_scale.y; m_ProcessGuizmoMatrix.m6 = m_ProcessGuizmoMatrix.m6 / m_scale.y;
+			m_ProcessGuizmoMatrix.m8 = m_ProcessGuizmoMatrix.m8 / m_scale.z; m_ProcessGuizmoMatrix.m9 = m_ProcessGuizmoMatrix.m9 / m_scale.z; m_ProcessGuizmoMatrix.m10 = m_ProcessGuizmoMatrix.m10 / m_scale.z;
+
+			m_rotation = QuaternionFromMatrix(m_ProcessGuizmoMatrix);
+
+			m_update = true;
+		}
+	}
+
+#ifdef _DEBUG
+	ImGui::Spacing();
+
+	ImGui::Text("[%.2f][%.2f][%.2f][%.2f]", m_globalMatrix.m0, m_globalMatrix.m1, m_globalMatrix.m2, m_globalMatrix.m3);
+	ImGui::Text("[%.2f][%.2f][%.2f][%.2f]", m_globalMatrix.m4, m_globalMatrix.m5, m_globalMatrix.m6, m_globalMatrix.m7);
+	ImGui::Text("[%.2f][%.2f][%.2f][%.2f]", m_globalMatrix.m8, m_globalMatrix.m9, m_globalMatrix.m10, m_globalMatrix.m11);
+	ImGui::Text("[%.2f][%.2f][%.2f][%.2f]", m_globalMatrix.m12, m_globalMatrix.m13, m_globalMatrix.m14, m_globalMatrix.m15);
+#endif // _DEBUG
 }
 #endif // _EDITOR

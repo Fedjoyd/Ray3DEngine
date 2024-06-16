@@ -35,7 +35,7 @@ namespace Components
 
 		// ---- Runtime/Editor methode ----
 
-		void SetCurrentCamera();
+		void UpdateToRenderSize() { m_cameraTextureSize = { GetRenderWidth(), GetRenderHeight() }; }
 
 		void Start(Core::GameObject* p_gameObject) override;
 		void Update(Core::GameObject* p_gameObject) override;
@@ -60,29 +60,31 @@ namespace Components
 		bool& IsCursorLock() { return m_cursorLock; }
 		bool IsCursorLock() const { return m_cursorLock; }
 
-		Color& BackgroundColor() { return m_ColorBackground; }
-		const Color& BackgroundColor() const { return m_ColorBackground; }
+		Color& BackgroundColor() { return m_colorBackground; }
+		const Color& BackgroundColor() const { return m_colorBackground; }
 
-		bool& RenderCameraTexture() { return m_RenderCameraTexture; }
-		bool RenderCameraTexture() const { return m_RenderCameraTexture; }
+		bool& RenderCameraTexture() { return m_renderCameraTexture; }
+		bool RenderCameraTexture() const { return m_renderCameraTexture; }
 
-		const RenderTexture2D& CameraTexture() const { return m_CameraTexture; }
+		const RenderTexture2D& CameraTexture() const { return m_cameraTexture; }
 
-		CameraSize& CameraTextureSize() { return m_size; }
-		const CameraSize& CameraTextureSize() const  { return m_size; }
+		CameraSize& CameraTextureSize() { return m_cameraTextureSize; }
+		const CameraSize& CameraTextureSize() const  { return m_cameraTextureSize; }
 
 		uint64_t DrawLayer() const { return m_drawLayer; }
 
 	private:
 		Camera3D m_cameraData;
+		Vector3 m_rightVector;
+		Vector3 m_forwardVector;
 		bool m_cursorLock;
 
 		unsigned int m_indexTransform;
 
-		CameraSize m_size;
-		Color m_ColorBackground;
-		RenderTexture2D m_CameraTexture;
-		bool m_RenderCameraTexture;
+		CameraSize m_cameraTextureSize;
+		Color m_colorBackground;
+		RenderTexture2D m_cameraTexture;
+		bool m_renderCameraTexture;
 
 		uint64_t m_drawLayer;
 	};

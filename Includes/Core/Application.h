@@ -122,6 +122,7 @@ namespace Core
 
 		bool m_ShowEditorControl = true;
 		bool m_fullscreenGame = false;
+		bool m_fullscreenEditor = true;
 		RenderTexture2D m_GameTexture = { 0 };
 
 		bool m_run = false;
