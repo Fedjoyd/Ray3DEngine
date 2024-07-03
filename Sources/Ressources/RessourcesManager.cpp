@@ -115,6 +115,8 @@ bool Ressources::RessourcesManager::AddRessourceCreator(const std::type_info& p_
 	Core::Application::GetRessourcesManager().m_resourcesFilter.insert({ p_typeData.hash_code(), true });
 #endif // _EDITOR
 
+	R3DE_DEBUG("Type creator for \"%s\" has been successfully added to RessourcesManager database with code : %zu", p_typeData.name(), p_typeData.hash_code());
+
 	return true;
 }
 
@@ -255,9 +257,12 @@ void Ressources::RessourcesManager::ShowSceneControl()
 			if (ImGui::Button(("Reload##Scene" + CurrentScnRef->GetName()).c_str()))
 				Core::Application::QueryLoadScene(CurrentScnRef->GetName());
 
-			ImGui::SameLine();
-			if (ImGui::Button(("Save##Scene" + CurrentScnRef->GetName()).c_str()))
-				Core::Application::GetGameObjectManager().SaveScene(CurrentScnRef);
+			if (CurrentScnRef->CanSave())
+			{
+				ImGui::SameLine();
+				if (ImGui::Button(("Save##Scene" + CurrentScnRef->GetName()).c_str()))
+					Core::Application::GetGameObjectManager().SaveScene(CurrentScnRef);
+			}
 		}
 		else
 		{
@@ -271,9 +276,12 @@ void Ressources::RessourcesManager::ShowSceneControl()
 			if (ImGui::Button(("Delete##Scene" + CurrentScnRef->GetName()).c_str()))
 				ImGui::OpenPopup(("Delete Scene ?##Scene" + CurrentScnRef->GetName()).c_str());
 
-			ImGui::SameLine();
-			if (ImGui::Button(("Copy##Scene" + CurrentScnRef->GetName()).c_str()))
-				ImGui::OpenPopup(("Copy Scene ?##Scene" + CurrentScnRef->GetName()).c_str());
+			if (CurrentScnRef->CanSave())
+			{
+				ImGui::SameLine();
+				if (ImGui::Button(("Copy##Scene" + CurrentScnRef->GetName()).c_str()))
+					ImGui::OpenPopup(("Copy Scene ?##Scene" + CurrentScnRef->GetName()).c_str());
+			}
 		}
 
 		// Always center this window when appearing

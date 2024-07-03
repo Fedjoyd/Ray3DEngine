@@ -101,6 +101,8 @@ Vector3 Components::Transform::GetGlobalScale() const
 
 void Components::Transform::DeserializeComponent(tinyxml2::XMLElement* p_XMLComponent)
 {
+	IComponent::DeserializeComponent(p_XMLComponent);
+
 	int64_t oldId = m_id;
 	m_id = p_XMLComponent->Int64Attribute("Id", m_id);
 
@@ -164,6 +166,8 @@ void Components::Transform::DeserializeComponent(tinyxml2::XMLElement* p_XMLComp
 
 void Components::Transform::SerializeComponent(tinyxml2::XMLElement* p_XMLComponent) const
 {
+	IComponent::SerializeComponent(p_XMLComponent);
+
 	p_XMLComponent->SetAttribute("Id", m_id);
 
 	if (m_parentId != 0)

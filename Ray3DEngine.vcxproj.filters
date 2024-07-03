@@ -138,6 +138,9 @@
     <ClCompile Include="External\Sources\ImGuizmo.cpp">
       <Filter>Fichiers sources\External</Filter>
     </ClCompile>
+    <ClCompile Include="ProjectContentCompiler.cpp">
+      <Filter>Fichiers sources</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="External\Includes\raygui.h">
@@ -241,6 +244,9 @@
     </ClInclude>
     <ClInclude Include="External\Includes\ImGuizmo.h">
       <Filter>Fichiers d%27en-tête\External</Filter>
+    </ClInclude>
+    <ClInclude Include="ProjectContentLoader.h">
+      <Filter>Fichiers d%27en-tête</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

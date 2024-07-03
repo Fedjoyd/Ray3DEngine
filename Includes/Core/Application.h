@@ -69,8 +69,6 @@ namespace Core
 #ifdef _EDITOR
 		static bool FullscreenGame() { return (m_singleton.m_ShowEditorControl ? m_singleton.m_fullscreenGame : true); }
 		static RenderTexture2D& GameRenderTexture() { return m_singleton.m_GameTexture; }
-
-		static bool Running() { return m_singleton.m_run; }
 #endif // _EDITOR
 
 		static GameObjectManager& GetGameObjectManager() { return m_singleton.m_gameObjectManager; }

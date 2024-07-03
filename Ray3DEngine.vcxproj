@@ -208,6 +208,7 @@
     <ClCompile Include="External\Sources\imgui_widgets.cpp" />
     <ClCompile Include="External\Sources\rlImGui.cpp" />
     <ClCompile Include="External\Sources\tinyxml2.cpp" />
+    <ClCompile Include="ProjectContentCompiler.cpp" />
     <ClCompile Include="Sources\Components\Component\Camera.cpp" />
     <ClCompile Include="Sources\Components\Component\Transform.cpp" />
     <ClCompile Include="Sources\Components\IComponent.cpp" />
@@ -262,6 +263,7 @@
     <ClInclude Include="Includes\Ressources\IRessource.h" />
     <ClInclude Include="Includes\Ressources\RessourcesManager.h" />
     <ClInclude Include="Includes\Ressources\Scene.h" />
+    <ClInclude Include="ProjectContentLoader.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

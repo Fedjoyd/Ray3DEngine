@@ -2,6 +2,8 @@
 
 #include "Core/Application.h"
 
+#define R3DE_CURRENT_FILE "ComponentManager.cpp"
+
 Components::ComponentsManager::ComponentsManager()
 {
 #ifdef _EDITOR
@@ -20,6 +22,8 @@ bool Components::ComponentsManager::AddComponentCreator(const std::type_info& p_
     Core::Application::GetComponentsManager().m_ComponentCreatorsName.push_back(p_typeData.name());
     Core::Application::GetComponentsManager().m_ComponentCreatorsHash.push_back(p_typeData.hash_code());
 #endif // _EDITOR
+
+    R3DE_DEBUG("Type creator for \"%s\" has been successfully added to ComponentsManager database with code : %zu", p_typeData.name(), p_typeData.hash_code());
 
     return true;
 }

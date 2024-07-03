@@ -9,7 +9,7 @@
 #include "tinyxml2.h"
 
 #define REGISTER_COMPONENT(CurComponent, CompType) \
-	virtual const std::type_info& GetType() const override { return typeid(*this); } \
+	virtual const std::type_info& GetType() const override { return typeid(CurComponent); } \
 	virtual Components::COMPONENT_TYPE GetComponentType() const override { return CompType; } \
 	static Components::IComponent* Create(void) { return (Components::IComponent*)(new CurComponent()); }
 

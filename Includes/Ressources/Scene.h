@@ -16,12 +16,13 @@ namespace Ressources
 		Scene() {}
 		~Scene() {}
 
-		virtual const std::string& GetName() const = 0;
+		virtual std::string GetName() const = 0;
 
 		// ---- Load/Save - Deserialize/Serialize ----
 
 		virtual bool LoadXmlDocument(tinyxml2::XMLDocument& dst) = 0;
 #ifdef _EDITOR
+		virtual bool CanSave() { return false; }
 		virtual void Save(tinyxml2::XMLDocument& dst) {}
 #endif // _EDITOR
 	};
@@ -33,13 +34,14 @@ namespace Ressources
 		DefaultScene(const std::string& p_name, const std::string& p_path) : m_name(p_name), m_path(p_path) {}
 		~DefaultScene() {}
 
-		const std::string& GetName() const override { return m_name; }
+		std::string GetName() const override { return m_name; }
 		std::string& GetPath() { return m_path; }
 
 		// ---- Load/Save - Deserialize/Serialize ----
 
 		bool LoadXmlDocument(tinyxml2::XMLDocument& dst) override;
 #ifdef _EDITOR
+		bool CanSave() override { return true; }
 		void Save(tinyxml2::XMLDocument& dst) override;
 #endif // _EDITOR
 

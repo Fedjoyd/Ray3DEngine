@@ -2,6 +2,13 @@
 
 #include "Debug/Assert.h"
 
+//#include "Components/Component/*.h"
+#include "Components/Component/Camera.h"
+#include "Components/Component/Transform.h"
+//#include "Ressources/Ressrouce/*.h"
+
+#include "../ProjectContentLoader.h"
+
 #define R3DE_CURRENT_FILE "Application.cpp"
 
 Core::Application Core::Application::m_singleton;
@@ -14,7 +21,19 @@ void Core::Application::Initialize()
     m_singleton.m_GameTexture = LoadRenderTexture(GetScreenWidth(), GetScreenHeight());
 #endif // _EDITOR
 
-	R3DE_INFO("Initialisation Finished !!");
+    REGISTER_COMPONENT_CREATOR(Components::Camera);
+    REGISTER_COMPONENT_CREATOR(Components::Transform);
+    Components::Transform::InitUUIDGenerator();
+    LoadComponentsType();
+    R3DE_INFO("Component type loaded !");
+
+    LoadRessourcesType();
+    R3DE_INFO("Ressource type loaded !");
+
+    RegisterIntegratedScene(m_singleton.m_ressourcesManager);
+    R3DE_INFO("Integrated scene registered !");
+
+	R3DE_INFO("Initialisation finished !!");
 }
 
 void Core::Application::Update()
@@ -55,7 +74,7 @@ void Core::Application::Update()
         m_singleton.m_GameTexture = LoadRenderTexture(GetScreenWidth(), GetScreenHeight());
     }
 
-    if (IsKeyPressed(KEY_H))
+    if (IsKeyPressed(KEY_GRAVE))
         m_singleton.m_ShowEditorControl = !(m_singleton.m_ShowEditorControl);
 #endif // _EDITOR
 

@@ -25,68 +25,6 @@
 #include "Debug/Log.h"
 #define R3DE_CURRENT_FILE "Main.cpp"
 
-class TestRessource : public Ressources::IRessource
-{
-public:
-    TestRessource(const int64_t p_UUID) : IRessource(p_UUID) {}
-    ~TestRessource() {}
-
-    REGISTER_RESSOURCE(TestRessource)
-
-private:
-};
-class TestRessource2 : public Ressources::IRessource
-{
-public:
-    TestRessource2(const int64_t p_UUID) : IRessource(p_UUID) {}
-    ~TestRessource2() {}
-
-    REGISTER_RESSOURCE(TestRessource2)
-
-private:
-};
-
-class TestComponent : public Components::IComponent
-{
-public:
-    TestComponent() {}
-    ~TestComponent() {}
-
-    REGISTER_COMPONENT(TestComponent, Components::COMPONENT_TYPE_NOTHING)
-
-#ifdef _EDITOR
-        void ShowEditorControl(const unsigned int p_indexComponent) override
-    {
-        IComponent::ShowEditorControl(p_indexComponent);
-
-        static int64_t TestComponentDnDID = 0L;
-
-        ImGui::Text("TestRessource :");
-        ImGui::SameLine();
-        ImGui::InputText(("##TestRessourceOfTestComponent_" + std::to_string(p_indexComponent)).c_str(), &m_TestRessourceName, ImGuiInputTextFlags_ReadOnly);
-        if (Ressources::RessourcesManager::RessourceDnDTarget(&TestComponentDnDID))
-            if (Core::Application::GetRessourcesManager().TryGetAndLoadRessource(TestComponentDnDID, &m_TestRessource))
-            {
-                m_TestRessourceName = m_TestRessource->GetName() + " (" + std::to_string(m_TestRessource->GetUUID()) + ")";
-                TestComponentDnDID = 0L;
-            }
-        ImGui::SameLine();
-        if (ImGui::Button(("X##TestRessourceOfTestComponent_" + std::to_string(p_indexComponent)).c_str()))
-        {
-            m_TestRessource = nullptr;
-            m_TestRessourceName = "Empty";
-        }
-    }
-#endif // _EDITOR
-
-private:
-    std::shared_ptr<TestRessource> m_TestRessource = nullptr;
-
-#ifdef _EDITOR
-    std::string m_TestRessourceName = "Empty";
-#endif // _EDITOR
-};
-
 #ifdef _CONSOLE
 
 class CmdLogger : public Debug::ILogger
@@ -129,14 +67,6 @@ int WinMain(void* hInstance, void* hPrevInstance, wchar_t* lpCmdLine, int nCmdSh
     R3DE_WARNING("Test");
     R3DE_ERROR("Test");
     R3DE_FATAL("Test");
-
-    REGISTER_COMPONENT_CREATOR(TestComponent);
-    REGISTER_COMPONENT_CREATOR(Components::Camera);
-    REGISTER_COMPONENT_CREATOR(Components::Transform);
-    Components::Transform::InitUUIDGenerator();
-
-    REGISTER_RESSOURCE_CREATOR(TestRessource);
-    REGISTER_RESSOURCE_CREATOR(TestRessource2);
 
     // Main game loop
     while (!Core::Application::ShouldExit())    // Detect window close button

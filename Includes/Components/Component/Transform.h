@@ -23,7 +23,7 @@ namespace Components
 		Transform();
 		~Transform();
 
-		REGISTER_COMPONENT(Transform, COMPONENT_TYPE_PHYSIC)
+		REGISTER_COMPONENT(Components::Transform, COMPONENT_TYPE_PHYSIC)
 
 		int64_t GetID() const { return m_id; }
 
