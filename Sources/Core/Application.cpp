@@ -33,6 +33,8 @@ void Core::Application::Initialize()
     RegisterIntegratedScene(m_singleton.m_ressourcesManager);
     R3DE_INFO("Integrated scene registered !");
 
+    m_singleton.m_localisationsManager.SetLanguage(0u, true); //TODO : Load language from settings
+
 	R3DE_INFO("Initialisation finished !!");
 }
 

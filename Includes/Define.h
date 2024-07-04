@@ -18,6 +18,7 @@
 // -------------------------------
 
 #define DEFAULT_SCENE_PATH "Ressources/Scenes/"
+#define DEFAULT_LOCATION_PATH "Ressources/Languages/"
 
 namespace Debug
 {

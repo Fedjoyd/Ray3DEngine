@@ -68,6 +68,10 @@ int WinMain(void* hInstance, void* hPrevInstance, wchar_t* lpCmdLine, int nCmdSh
     R3DE_ERROR("Test");
     R3DE_FATAL("Test");
 
+    R3DE_INFO(GET_LOCAL("TEST").c_str());
+    R3DE_INFO(GET_LOCAL("TEST_RUN").c_str());
+    R3DE_INFO(GET_LOCAL("ULM").c_str());
+
     // Main game loop
     while (!Core::Application::ShouldExit())    // Detect window close button
     {
