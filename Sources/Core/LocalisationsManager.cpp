@@ -5,8 +5,24 @@
 #include "Debug/Log.h"
 #define R3DE_CURRENT_FILE "LocalisationManager.cpp"
 
-void Core::LocalisationsManager::LoadLanguageList(tinyxml2::XMLElement* p_LanguageList)
+void Core::LocalisationsManager::LoadLanguagesList(tinyxml2::XMLElement* p_LanguageList)
 {
+	if (p_LanguageList == nullptr)
+		return;
+
+	m_languages.clear();
+	tinyxml2::XMLElement* languageXML = p_LanguageList->FirstChildElement("Language");
+
+	while (languageXML != nullptr)
+	{
+		const char* languageIdentifier = languageXML->Attribute("Id");
+		const char* languageName = languageXML->GetText();
+
+		if (languageIdentifier != nullptr && languageName != nullptr)
+			m_languages.push_back({ std::string(languageIdentifier), std::string(languageName) });
+
+		languageXML = languageXML->NextSiblingElement("Language");
+	}
 }
 
 bool Core::LocalisationsManager::SetLanguage(size_t p_nextLanguage, bool p_forceLoad)
@@ -63,6 +79,21 @@ const std::string& Core::LocalisationsManager::GetLocalFormat(const std::string&
 
 void Core::LocalisationsManager::SaveLanguageList(tinyxml2::XMLElement* p_LanguageList)
 {
+	if (p_LanguageList == nullptr)
+		return;
+
+	tinyxml2::XMLElement* languageXML = nullptr;
+
+	for (size_t currentIndex = 0u; currentIndex < m_languages.size(); currentIndex++)
+	{
+		languageXML = p_LanguageList->InsertNewChildElement("Language");
+
+		if (languageXML == nullptr)
+			continue;
+
+		languageXML->SetAttribute("Id", m_languages[currentIndex].first.c_str());
+		languageXML->SetText(m_languages[currentIndex].second.c_str());
+	}
 }
 
 void Core::LocalisationsManager::SaveCurrentLanguage()
